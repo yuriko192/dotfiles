@@ -82,7 +82,62 @@ return {
             { "MunifTanjim/nui.nvim" },
         },
     },
-    -- {
-    --     "fatih/vim-go",
-    -- },
+    {
+        "L3MON4D3/LuaSnip",
+        -- follow latest release.
+        version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+        -- install jsregexp (optional!).
+        build = "make install_jsregexp",
+
+        dependencies = { "rafamadriz/friendly-snippets" },
+
+        config = function()
+            local ls = require("luasnip")
+            ls.filetype_extend("javascript", { "jsdoc" })
+
+            --- TODO: What is expand?
+            vim.keymap.set({ "i" }, "<C-s>e", function()
+                ls.expand()
+            end, { silent = true })
+
+            vim.keymap.set({ "i", "s" }, "<C-s>;", function()
+                ls.jump(1)
+            end, { silent = true })
+            vim.keymap.set({ "i", "s" }, "<C-s>,", function()
+                ls.jump(-1)
+            end, { silent = true })
+
+            vim.keymap.set({ "i", "s" }, "<C-E>", function()
+                if ls.choice_active() then
+                    ls.change_choice(1)
+                end
+            end, { silent = true })
+        end,
+    },
+    {
+        "ray-x/go.nvim",
+        dependencies = { -- optional packages
+            "ray-x/guihua.lua",
+            "neovim/nvim-lspconfig",
+            "nvim-treesitter/nvim-treesitter",
+        },
+        opts = {
+            -- lsp_keymaps = false,
+            -- other options
+        },
+        config = function(lp, opts)
+            require("go").setup(opts)
+            local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
+            vim.api.nvim_create_autocmd("BufWritePre", {
+                pattern = "*.go",
+                callback = function()
+                    require("go.format").goimports()
+                end,
+                group = format_sync_grp,
+            })
+        end,
+        event = { "CmdlineEnter" },
+        ft = { "go", "gomod" },
+        build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+    },
 }

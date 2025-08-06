@@ -1,6 +1,6 @@
-vim.keymap.set("n", "<leader>xe", ":%bd|e#", { desc = "Close other buffers" })
-vim.keymap.set("n", "<leader>xx", ":bd", { desc = "Close current buffer" })
-vim.keymap.set("n", "<leader>xa", ":%bd", { desc = "Close all buffers" })
+vim.keymap.set("n", "<leader>xe", ":%bd|e#<CR>", { desc = "Close other buffers" })
+vim.keymap.set("n", "<leader>xx", ":bd<CR>", { desc = "Close current buffer" })
+vim.keymap.set("n", "<leader>xa", ":%bd<CR>", { desc = "Close all buffers" })
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })

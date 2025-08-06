@@ -6,4 +6,6 @@ vim.keymap.set("n", "<leader>gb", ":Git blame<CR>", { desc = "Toggle Git blame" 
 
 vim.api.nvim_set_keymap("n", ":", "<cmd>FineCmdline<CR>", { noremap = true })
 
+vim.keymap.set("n", "<leader><C-f>", require("nvim-tree.api").tree.find_file, { desc = "Highlight current file" })
+
 return {}
