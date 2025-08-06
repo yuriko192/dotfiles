@@ -617,11 +617,22 @@ require("lazy").setup({
             --  - settings (table): Override the default settings passed when initializing the server.
             --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
             local util = require("lspconfig/util")
+            local on_attach = require("lspconfig").on_attach
             local servers = {
                 -- clangd = {},
                 gopls = {
+                    on_attach = on_attach,
+                    capabilities = capabilities,
                     filetypes = { "go", "gomod", "gotmpl" },
                     root_dir = util.root_pattern("go.mod"),
+                    settings = {
+                        gopls = {
+                            completeUnimported = true,
+                            analyses = {
+                                unusedparams = true,
+                            },
+                        },
+                    },
                 },
                 zls = {},
                 -- pyright = {},
