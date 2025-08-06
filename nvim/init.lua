@@ -13,6 +13,11 @@ vim.opt.wrap = false
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+vim.opt.fillchars = { fold = " " }
+vim.opt.foldmethod = "indent"
+vim.opt.foldenable = false
+vim.opt.foldlevel = 99
+
 -- Make line numbers default
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -32,16 +37,6 @@ vim.o.showmode = false
 -- vim.schedule(function()
 --     vim.o.clipboard = "unnamedplus"
 -- end)
-
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
-
-vim.keymap.set("x", "<leader>p", [["_dP]])
-vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
-vim.keymap.set("n", "<leader>Y", [["+Y]])
-vim.keymap.set({ "n", "v" }, "<leader>d", '"_d')
-
-vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
 -- Enable break indent
 vim.o.breakindent = true
@@ -483,16 +478,16 @@ require("lazy").setup({
 
                     -- Jump to the implementation of the word under your cursor.
                     --  Useful when your language has ways of declaring types without an actual implementation.
-                    map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+                    map("gi", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
 
                     -- Jump to the definition of the word under your cursor.
                     --  This is where a variable was first declared, or where a function is defined, etc.
                     --  To jump back, press <C-t>.
-                    map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+                    map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 
                     -- WARN: This is not Goto Definition, this is Goto Declaration.
                     --  For example, in C this would take you to the header.
-                    map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+                    map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
                     -- Fuzzy find all the symbols in your current document.
                     --  Symbols are things like variables, functions, types, etc.
@@ -963,6 +958,7 @@ require("lazy").setup({
     --
     --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
     { import = "custom.plugins" },
+    { import = "custom" },
     --
     -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
     -- Or use telescope!

@@ -82,4 +82,7 @@ return {
             { "MunifTanjim/nui.nvim" },
         },
     },
+    -- {
+    --     "fatih/vim-go",
+    -- },
 }
