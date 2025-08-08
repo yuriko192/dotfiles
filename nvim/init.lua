@@ -613,10 +613,17 @@ require('lazy').setup({
         -- clangd = {},
         autotools_ls = {},
         rustywind = {},
-        tailwindcss = {},
+        tailwindcss = {
+          filetypes = { 'templ', 'astro', 'javascript', 'typescript' },
+          settings = {
+            tailwindcss = {
+              includeLanguages = {
+                templ = 'html',
+              },
+            },
+          },
+        },
         gopls = {
-          on_attach = on_attach,
-          capabilities = capabilities,
           filetypes = { 'go', 'gomod', 'gotmpl' },
           root_dir = util.root_pattern 'go.mod',
           settings = {
@@ -628,6 +635,8 @@ require('lazy').setup({
             },
           },
         },
+        templ = {},
+
         zls = {},
         pyright = {},
         -- rust_analyzer = {},
@@ -685,6 +694,7 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+            server.on_attach = vim.tbl_deep_extend('force', {}, on_attach, server.on_attach or {})
             require('lspconfig')[server_name].setup(server)
           end,
         },
@@ -917,6 +927,7 @@ require('lazy').setup({
         'query',
         'vim',
         'vimdoc',
+        'templ',
       },
       -- Autoinstall languages that are not installed
       auto_install = true,
@@ -957,7 +968,6 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   { import = 'custom.plugins' },
-  { import = 'custom' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
@@ -991,3 +1001,4 @@ require('lazy').setup({
 -- nvimtree
 vim.keymap.set('n', '<C-n>', '<cmd>NvimTreeToggle<CR>', { desc = 'nvimtree toggle window' })
 vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'nvimtree focus window' })
+require 'custom'

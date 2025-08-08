@@ -2,6 +2,7 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
+
 return {
   {
     'nvim-tree/nvim-tree.lua',
@@ -114,5 +115,11 @@ return {
         end
       end, { silent = true })
     end,
+  },
+  {
+    'nvim-treesitter/nvim-treesitter',
+    lazy = false,
+    branch = 'main',
+    build = ':TSUpdate',
   },
 }
