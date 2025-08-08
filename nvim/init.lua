@@ -636,6 +636,12 @@ require('lazy').setup({
           },
         },
         templ = {},
+        htmx = {
+          filetypes = { 'html', 'templ' },
+        },
+        html = {
+          filetypes = { 'html', 'templ' },
+        },
 
         zls = {},
         pyright = {},
