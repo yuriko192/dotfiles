@@ -61,65 +61,21 @@ return {
     build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
   },
   {
-    'nvim-treesitter/nvim-treesitter',
-    branch = 'master',
-    lazy = false,
-    build = ':TSUpdate',
-    ensure_installed = { 'go', 'help', 'javascript', 'typescript', 'python', 'zig', 'lua' },
-    sync_install = false,
-    auto_install = true,
-    highlight = {
-      enable = true,
-    },
-  },
-  {
     'mbbill/undotree',
   },
   {
     'tpope/vim-fugitive',
   },
   {
-    'VonHeikemen/fine-cmdline.nvim',
-    dependencies = {
-      { 'MunifTanjim/nui.nvim' },
-    },
-  },
-  {
-    'L3MON4D3/LuaSnip',
-    -- follow latest release.
-    version = 'v2.*', -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-    -- install jsregexp (optional!).
-    build = 'make install_jsregexp',
-
-    dependencies = { 'rafamadriz/friendly-snippets' },
-
+    'olrtg/nvim-emmet',
     config = function()
-      local ls = require 'luasnip'
-      ls.filetype_extend('javascript', { 'jsdoc' })
-
-      --- TODO: What is expand?
-      vim.keymap.set({ 'i' }, '<C-s>e', function()
-        ls.expand()
-      end, { silent = true })
-
-      vim.keymap.set({ 'i', 's' }, '<C-s>;', function()
-        ls.jump(1)
-      end, { silent = true })
-      vim.keymap.set({ 'i', 's' }, '<C-s>,', function()
-        ls.jump(-1)
-      end, { silent = true })
-
-      vim.keymap.set({ 'i', 's' }, '<C-E>', function()
-        if ls.choice_active() then
-          ls.change_choice(1)
-        end
-      end, { silent = true })
+      vim.keymap.set({ 'n', 'v' }, '<leader>ne', require('nvim-emmet').wrap_with_abbreviation)
     end,
   },
-  {
-    'nvim-treesitter/nvim-treesitter',
-    lazy = false,
-    branch = 'main',
-    build = ':TSUpdate',
-  },
+  -- {
+  --   'VonHeikemen/fine-cmdline.nvim',
+  --   dependencies = {
+  --     { 'MunifTanjim/nui.nvim' },
+  --   },
+  -- },
 }
