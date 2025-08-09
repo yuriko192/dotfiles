@@ -629,6 +629,9 @@ require('lazy').setup({
           settings = {
             gopls = {
               completeUnimported = true,
+              usePlaceholders = true,
+              staticcheck = true,
+              gofumpt = true,
               analyses = {
                 unusedparams = true,
               },
@@ -983,6 +986,7 @@ require('lazy').setup({
         'vimdoc',
         'templ',
         'go',
+        'gotmpl',
         'javascript',
         'typescript',
         'python',
