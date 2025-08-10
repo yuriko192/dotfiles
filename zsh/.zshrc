@@ -1,3 +1,9 @@
+eval "$(starship init zsh)"
+
+export PATH=$PATH:/opt/homebrew/bin/zig
+export PATH=$PATH:$HOME/programs/zls
+export PATH=$PATH:$HOME/bin/kafka_2.13-4.0.0/bin
+export PATH=$PATH:$HOME/go/bin
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 export PATH=/usr/local/go/bin:$PATH
@@ -6,11 +12,52 @@ export PATH=$HOME/.cargo/bin:$PATH
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 
+# Device specific configs
 file="$HOME/.env"
 if [ -f "$file" ]; 	then 
 	source "$file" 
 fi 
 
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Good to have alias
+alias python="python3"
+alias gotest="go run gotest.tools/gotestsum@latest"
+alias gcz="git cz"
+
+# Quick go switching
+goarm() {
+   if [ -z ${ORIGINAL_PATH+x} ]; then
+    export ORIGINAL_PATH="$PATH"
+  fi
+
+  export GOROOT="/usr/local/go_arm_1.24"
+  export PATH="/usr/local/go_arm_1.24/bin:$ORIGINAL_PATH"
+  echo "Switched to Go ARM 1.24"
+}
+
+goamd() {
+   if [ -z ${ORIGINAL_PATH+x} ]; then
+    export ORIGINAL_PATH="$PATH"
+  fi
+
+  export GOROOT="/usr/local/go_amd_1.24"
+  export PATH="/usr/local/go_amd_1.24/bin:$ORIGINAL_PATH"
+  echo "Switched to Go AMD 1.24"
+}
+
+
+# ZSH Specific Configs
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.zplug/repos/ohmyzsh/ohmyzsh"
 
@@ -112,8 +159,3 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
