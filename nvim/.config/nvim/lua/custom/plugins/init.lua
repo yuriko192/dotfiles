@@ -95,12 +95,12 @@ local resultWithVscode = {
       vim.keymap.set({ 'n', 'v' }, '<leader>ne', require('nvim-emmet').wrap_with_abbreviation, { desc = 'Emmet - Wrap Abbreviation' })
     end,
   },
-  -- {
-  --   'VonHeikemen/fine-cmdline.nvim',
-  --   dependencies = {
-  --     { 'MunifTanjim/nui.nvim' },
-  --   },
-  -- },
+  {
+    'VonHeikemen/fine-cmdline.nvim',
+    dependencies = {
+      { 'MunifTanjim/nui.nvim' },
+    },
+  },
 }
 
 result = tableConcat(result, resultWithVscode)
