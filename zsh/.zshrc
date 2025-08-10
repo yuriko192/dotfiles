@@ -6,6 +6,10 @@ export PATH=$HOME/.cargo/bin:$PATH
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 
+file="$HOME/.env"
+if [ -f "$file" ]; 	then 
+	source "$file" 
+fi 
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.zplug/repos/ohmyzsh/ohmyzsh"
@@ -112,3 +116,4 @@ source $ZSH/oh-my-zsh.sh
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
