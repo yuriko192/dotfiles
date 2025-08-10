@@ -58,8 +58,17 @@ local resultWithVscode = {
       'nvim-treesitter/nvim-treesitter',
     },
     opts = {
-      -- lsp_keymaps = false,
-      -- other options
+      settings = {
+        gopls = {
+          completeUnimported = true,
+          usePlaceholders = true,
+          staticcheck = true,
+          gofumpt = true,
+          analyses = {
+            unusedparams = true,
+          },
+        },
+      },
       capabilities = require('blink.cmp').get_lsp_capabilities(),
     },
     config = function(lp, opts)
@@ -74,7 +83,7 @@ local resultWithVscode = {
       })
     end,
     event = { 'CmdlineEnter' },
-    ft = { 'go', 'gomod' },
+    ft = { 'go', 'gomod', 'gosum', 'gotmpl', 'gohtmltmpl', 'gotexttmpl' },
     build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
   },
   {
@@ -83,7 +92,7 @@ local resultWithVscode = {
   {
     'olrtg/nvim-emmet',
     config = function()
-      vim.keymap.set({ 'n', 'v' }, '<leader>ne', require('nvim-emmet').wrap_with_abbreviation)
+      vim.keymap.set({ 'n', 'v' }, '<leader>ne', require('nvim-emmet').wrap_with_abbreviation, { desc = 'Emmet - Wrap Abbreviation' })
     end,
   },
   -- {

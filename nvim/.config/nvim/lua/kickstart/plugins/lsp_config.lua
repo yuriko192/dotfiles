@@ -193,8 +193,7 @@ return {
     --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
     --  - settings (table): Override the default settings passed when initializing the server.
     --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
-    local util = require 'lspconfig/util'
-    local on_attach = require('lspconfig').on_attach
+    -- local util = require 'lspconfig/util'
     local servers = {
       -- clangd = {},
       autotools_ls = {},
@@ -209,21 +208,21 @@ return {
           },
         },
       },
-      gopls = {
-        filetypes = { 'go', 'gomod', 'gotmpl' },
-        root_dir = util.root_pattern 'go.mod',
-        settings = {
-          gopls = {
-            completeUnimported = true,
-            usePlaceholders = true,
-            staticcheck = true,
-            gofumpt = true,
-            analyses = {
-              unusedparams = true,
-            },
-          },
-        },
-      },
+      -- gopls = {
+      --   filetypes = { 'go', 'gomod', 'gosum', 'gotmpl', 'gohtmltmpl', 'gotexttmpl' },
+      --   root_dir = util.root_pattern 'go.mod',
+      --   settings = {
+      --     gopls = {
+      --       completeUnimported = true,
+      --       usePlaceholders = true,
+      --       staticcheck = true,
+      --       gofumpt = true,
+      --       analyses = {
+      --         unusedparams = true,
+      --       },
+      --     },
+      --   },
+      -- },
       templ = {},
       htmx = {
         filetypes = { 'html', 'templ' },
@@ -249,7 +248,7 @@ return {
           --- @type "always" | "never" Defaults to `"always"`
           showExpandedAbbreviation = 'always',
           --- @type boolean Defaults to `false`
-          showSuggestionsAsSnippets = false,
+          showSuggestionsAsSnippets = true,
           --- @type table<string, any> [Emmet Docs](https://docs.emmet.io/customization/syntax-profiles/)
           syntaxProfiles = {},
           --- @type table<string, string> [Emmet Docs](https://docs.emmet.io/customization/snippets/#variables)
@@ -313,7 +312,6 @@ return {
           -- by the server configuration above. Useful when disabling
           -- certain features of an LSP (for example, turning off formatting for ts_ls)
           server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-          server.on_attach = vim.tbl_deep_extend('force', {}, on_attach, server.on_attach or {})
           require('lspconfig')[server_name].setup(server)
         end,
       },

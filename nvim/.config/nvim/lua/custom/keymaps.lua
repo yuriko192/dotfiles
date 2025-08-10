@@ -10,7 +10,7 @@ vim.keymap.set({ 'n', 'v' }, '<leader>y', [["+y]], { desc = 'yank to global clip
 vim.keymap.set('n', '<leader>Y', [["+Y]], { desc = 'yank till EoLine to global clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<leader>d', '"_d', { desc = 'delete w/o buffer overwrite' })
 
-vim.keymap.set('n', '<leader>s', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'Rename all occurence of highlight in buffer' })
+vim.keymap.set('n', '<leader>rn', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'Rename all occurence of highlight in buffer' })
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = 'Toggle undotree' })
 
