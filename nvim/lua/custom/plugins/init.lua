@@ -3,7 +3,24 @@
 --
 -- See the kickstart.nvim README for more information
 
-return {
+local result = {
+  {
+    'mbbill/undotree',
+  },
+}
+
+if vim.g.vscode then
+  return result
+end
+
+function tableConcat(t1, t2)
+  for i = 1, #t2 do
+    t1[#t1 + 1] = t2[i]
+  end
+  return t1
+end
+
+local resultWithVscode = {
   {
     'nvim-tree/nvim-tree.lua',
     version = '*',
@@ -61,9 +78,6 @@ return {
     build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
   },
   {
-    'mbbill/undotree',
-  },
-  {
     'tpope/vim-fugitive',
   },
   {
@@ -79,3 +93,6 @@ return {
   --   },
   -- },
 }
+
+result = tableConcat(result, resultWithVscode)
+return result
