@@ -43,4 +43,4 @@
 # resize-overlay-duration = 4s 200ms
 
 theme = Atom
-font-family = MesloLGM Nerd Font
+font-family = JetBrainsMono Nerd Font Mono
