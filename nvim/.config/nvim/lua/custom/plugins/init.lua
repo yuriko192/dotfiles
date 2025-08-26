@@ -7,6 +7,43 @@ local result = {
   {
     'mbbill/undotree',
   },
+  {
+    'folke/persistence.nvim',
+    event = 'BufReadPre', -- this will only start session saving when an actual file was opened
+    opts = {
+      -- add any custom options here
+    },
+    keys = {
+      {
+        '<leader>ls',
+        function()
+          require('persistence').load()
+        end,
+        desc = 'Restore Session',
+      },
+      {
+        '<leader>lS',
+        function()
+          require('persistence').select()
+        end,
+        desc = 'Select Session',
+      },
+      {
+        '<leader>ll',
+        function()
+          require('persistence').load { last = true }
+        end,
+        desc = 'Restore Last Session',
+      },
+      {
+        '<leader>lfq',
+        function()
+          require('persistence').stop()
+        end,
+        desc = "Don't Save Current Session",
+      },
+    },
+  },
 }
 
 if vim.g.vscode then
@@ -20,7 +57,7 @@ function tableConcat(t1, t2)
   return t1
 end
 
-local resultWithVscode = {
+local resultWithoutVscode = {
   {
     'nvim-tree/nvim-tree.lua',
     version = '*',
@@ -29,7 +66,18 @@ local resultWithVscode = {
       'nvim-tree/nvim-web-devicons',
     },
     config = function()
-      require('nvim-tree').setup {}
+      require('nvim-tree').setup {
+        on_attach = function(bufnr)
+          local api = require 'nvim-tree.api'
+
+          api.config.mappings.default_on_attach(bufnr)
+
+          vim.keymap.set('n', '<C-n>', '<cmd>NvimTreeToggle<CR>', { desc = 'nvimtree toggle window' })
+          vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'nvimtree focus window' })
+
+          vim.keymap.set('n', '<leader>FF', '<cmd>NvimTreeFindFile<CR>', { desc = 'nvimtree focus window' })
+        end,
+      }
     end,
   },
   {
@@ -83,7 +131,7 @@ local resultWithVscode = {
       })
     end,
     event = { 'CmdlineEnter' },
-    ft = { 'go', 'gomod', 'gosum', 'gotmpl', 'gohtmltmpl', 'gotexttmpl' },
+    ft = { 'go', 'gomod', 'gosum', 'gotmpl', 'gohtmltmpl', 'gotexttmpl', 'templ' },
     build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
   },
   {
@@ -101,7 +149,8 @@ local resultWithVscode = {
       { 'MunifTanjim/nui.nvim' },
     },
   },
+  { 'akinsho/bufferline.nvim', version = '*', dependencies = 'nvim-tree/nvim-web-devicons' },
 }
 
-result = tableConcat(result, resultWithVscode)
+result = tableConcat(result, resultWithoutVscode)
 return result
