@@ -41,6 +41,7 @@ alias ls="exa"
 
 alias cats="cat"
 alias cat="bat"
+eval $(thefuck --alias)
 
 # Quick go switching
 goarm() {
@@ -63,6 +64,16 @@ goamd() {
   echo "Switched to Go AMD 1.24"
 }
 
+
+goOldMock() {
+    cp -v "$HOME/go/bin/oldmockgen" "$HOME/go/bin/mockgen"  
+	echo "Switched to oldmockgen"
+}
+
+goUberMockGen() {
+    cp -v "$HOME/go/bin/ubermockgen" "$HOME/go/bin/mockgen"  
+	echo "Switched to ubermockgen"
+}
 
 # ZSH Specific Configs
 # Path to your Oh My Zsh installation.
