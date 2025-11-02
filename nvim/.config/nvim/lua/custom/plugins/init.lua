@@ -72,7 +72,7 @@ local resultWithoutVscode = {
 
           api.config.mappings.default_on_attach(bufnr)
 
-          vim.keymap.set('n', '<C-n>', '<cmd>NvimTreeToggle<CR>', { desc = 'nvimtree toggle window' })
+          vim.keymap.set('n', '<C-e>', '<cmd>NvimTreeToggle<CR>', { desc = 'nvimtree toggle window' })
           vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'nvimtree focus window' })
 
           vim.keymap.set('n', '<leader>FF', '<cmd>NvimTreeFindFile<CR>', { desc = 'nvimtree focus window' })
