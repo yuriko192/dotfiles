@@ -58,27 +58,38 @@ function tableConcat(t1, t2)
 end
 
 local resultWithoutVscode = {
+  -- {
+  --   'nvim-tree/nvim-tree.lua',
+  --   version = '*',
+  --   lazy = false,
+  --   dependencies = {
+  --     'nvim-tree/nvim-web-devicons',
+  --   },
+  --   config = function()
+  --     require('nvim-tree').setup {
+  --       on_attach = function(bufnr)
+  --         local api = require 'nvim-tree.api'
+  --
+  --         api.config.mappings.default_on_attach(bufnr)
+  --
+  --         vim.keymap.set('n', '<C-e>', '<cmd>NvimTreeToggle<CR>', { desc = 'nvimtree toggle window' })
+  --         vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'nvimtree focus window' })
+  --
+  --         vim.keymap.set('n', '<leader>FF', '<cmd>NvimTreeFindFile<CR>', { desc = 'nvimtree focus window' })
+  --       end,
+  --     }
+  --   end,
+  -- },
   {
-    'nvim-tree/nvim-tree.lua',
-    version = '*',
-    lazy = false,
-    dependencies = {
-      'nvim-tree/nvim-web-devicons',
-    },
+    'stevearc/oil.nvim',
+    opts = {},
+    dependencies = { { 'nvim-mini/mini.icons', opts = {} } },
     config = function()
-      require('nvim-tree').setup {
-        on_attach = function(bufnr)
-          local api = require 'nvim-tree.api'
-
-          api.config.mappings.default_on_attach(bufnr)
-
-          vim.keymap.set('n', '<C-e>', '<cmd>NvimTreeToggle<CR>', { desc = 'nvimtree toggle window' })
-          vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeFocus<CR>', { desc = 'nvimtree focus window' })
-
-          vim.keymap.set('n', '<leader>FF', '<cmd>NvimTreeFindFile<CR>', { desc = 'nvimtree focus window' })
-        end,
+      require('oil').setup {
+        default_file_explorer = true,
       }
     end,
+    lazy = false,
   },
   {
     'christoomey/vim-tmux-navigator',

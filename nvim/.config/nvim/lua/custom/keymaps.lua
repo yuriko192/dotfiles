@@ -25,6 +25,7 @@ if vim.g.vscode then
   return {}
 end
 
-vim.keymap.set('n', '<leader><C-f>', require('nvim-tree.api').tree.find_file, { desc = 'Highlight current file' })
+vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Highlight current file' })
+-- vim.keymap.set('n', '<leader><C-f>', require('nvim-tree.api').tree.find_file, { desc = 'Highlight current file' })
 
 return {}
