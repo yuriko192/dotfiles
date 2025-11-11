@@ -77,6 +77,7 @@ return {
         --  This is where a variable was first declared, or where a function is defined, etc.
         --  To jump back, press <C-t>.
         map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        map('grr', require('telescope.builtin').lsp_definitions, '[G]oto [R]eferences')
 
         -- WARN: This is not Goto Definition, this is Goto Declaration.
         --  For example, in C this would take you to the header.
@@ -195,7 +196,7 @@ return {
     --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
     -- local util = require 'lspconfig/util'
     local servers = {
-      -- clangd = {},
+      clangd = {},
       autotools_ls = {},
       rustywind = {},
       tailwindcss = {
@@ -255,7 +256,9 @@ return {
           variables = {},
         },
       },
-      zls = {},
+      zls = {
+        semantic_token = 'partial',
+      },
       pyright = {},
       -- rust_analyzer = {},
       -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs

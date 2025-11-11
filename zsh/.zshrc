@@ -12,6 +12,8 @@ export PATH=$HOME/.cargo/bin:$PATH
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 
+export REACT_EDITOR=nvim
+
 # Device specific configs
 file="$HOME/.env"
 if [ -f "$file" ]; 	then 
