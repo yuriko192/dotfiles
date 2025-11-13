@@ -1,0 +1,35 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+
+format="""
+$time $status $sudo[|](bold) $all
+"""
+
+right_format='''
+
+'''
+
+[time]
+disabled = false
+format = '[$time](blue bold)'
+use_12h4 = true
+# time_range = '10:00:00-14:00:00'
+
+[cmd_duration]
+min_time = 500
+format = 'executed in [$duration]($style)'
+
+
+[status]
+symbol = '[ ](red)'
+success_symbol = '[](green)'
+format = '[$symbol$common_meaning$signal_name$maybe_int]($style)'
+map_symbol = true
+disabled = false
+
+
+[sudo]
+symbol = ' '
+format = '[$symbol]($style)'
+disabled = false
