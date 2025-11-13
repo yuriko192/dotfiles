@@ -256,6 +256,7 @@ return {
           variables = {},
         },
       },
+      jdtls = {},
       zls = {
         semantic_token = 'partial',
       },

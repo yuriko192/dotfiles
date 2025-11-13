@@ -484,6 +484,7 @@ local lazyTable = {
         'c',
         'diff',
         'html',
+        'java',
         'lua',
         'luadoc',
         'markdown',
