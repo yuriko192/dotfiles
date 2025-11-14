@@ -13,7 +13,7 @@ right_format='''
 [time]
 disabled = false
 format = '[$time](blue bold)'
-use_12h4 = true
+use_12hr = true
 # time_range = '10:00:00-14:00:00'
 
 [cmd_duration]
