@@ -82,28 +82,65 @@ goUberMockGen() {
 }
 
 
-# preexec(){
-# 	if [[ $1 != make* ]]
-# 	then
+# precmd(){
+# 	if [[ ! -f /tmp/cmd_output_$$ ]];then 
 # 		return
 # 	fi
 #
-#
-# 	currDir=${PWD##*/}
-#
-# 	if [[ $currDir == "TIX-CORPORATE-BE" ]]
-# 	then
-# 		goOldMock
-# 		return
-# 	fi
-#
-#
-# 	if [[ $currDir == "TIX-CORPORATE-OPEN-API" ]]
-# 	then
-# 		goUberMockGen
-# 		return
+# 	if tail -n 20 /tmp/cmd_output_$$ | grep -q "go mod vendor"; then
+# 		print -P "Executing go mod vendor"
+# 		go mod vendor
 # 	fi
 # }
+#
+# preexec(){
+# 	autoChangeGo $1
+# 	autoChangeMock $1
+# 	autoGMV
+# }
+
+autoGMV(){
+	exec 2> >( tee /tmp/cmd_output_$$&)
+}
+
+
+autoChangeGo(){
+	if [[ "$1" != *test* ]]; then
+        return 
+	fi
+    
+	currDir=${PWD##*/}
+
+	if [[ $currDir == "TIX-CORPORATE-BE" ]]
+	then
+		goamd
+		return
+	fi
+
+}
+
+autoChangeMock(){
+	if [[ $1 != make* ]]
+	then
+		return
+	fi
+	
+
+	currDir=${PWD##*/}
+
+	if [[ $currDir == "TIX-CORPORATE-BE" ]]
+	then
+		goOldMock
+		return
+	fi
+
+
+	if [[ $currDir == "TIX-CORPORATE-OPEN-API" ]]
+	then
+		goUberMockGen
+		return
+	fi
+}
 
 
 # ZSH Specific Configs
