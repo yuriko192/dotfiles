@@ -32,6 +32,10 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 
+# Java JDK manager
+export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"
+
 # Good to have alias
 alias python="python3"
 alias gotest="go run gotest.tools/gotestsum@latest"
@@ -76,6 +80,31 @@ goUberMockGen() {
     cp -v "$HOME/go/bin/ubermockgen" "$HOME/go/bin/mockgen"  
 	echo "Switched to ubermockgen"
 }
+
+
+# preexec(){
+# 	if [[ $1 != make* ]]
+# 	then
+# 		return
+# 	fi
+#
+#
+# 	currDir=${PWD##*/}
+#
+# 	if [[ $currDir == "TIX-CORPORATE-BE" ]]
+# 	then
+# 		goOldMock
+# 		return
+# 	fi
+#
+#
+# 	if [[ $currDir == "TIX-CORPORATE-OPEN-API" ]]
+# 	then
+# 		goUberMockGen
+# 		return
+# 	fi
+# }
+
 
 # ZSH Specific Configs
 # Path to your Oh My Zsh installation.
