@@ -27,9 +27,10 @@ fi
 
 # NVM
 
+export NVM_DIR="$HOME/.nvm"
 load-nvm() {
-  [[ -n "$NVM_DIR" ]] && return
-  export NVM_DIR="$HOME/.nvm"
+  [[ -n "$__NVM_LOADED" ]] && return
+  export __NVM_LOADED=1
 
   unset -f nvm
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
