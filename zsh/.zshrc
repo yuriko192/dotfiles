@@ -1,3 +1,8 @@
+export PROFILING_MODE=0
+if [ $PROFILING_MODE -ne 0 ]; then
+    zmodload zsh/zprof
+fi
+
 eval "$(starship init zsh)"
 
 export PATH=$PATH:/opt/homebrew/bin/zig
@@ -21,9 +26,25 @@ if [ -f "$file" ]; 	then
 fi 
 
 # NVM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+load-nvm() {
+  [[ -n "$NVM_DIR" ]] && return
+  export NVM_DIR="$HOME/.nvm"
+
+  unset -f nvm
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+}
+
+nvm() {
+  load-nvm
+  nvm "$@"
+}
+
+# Slow initialization
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # pnpm
 export PNPM_HOME="$HOME/Library/pnpm"
@@ -142,6 +163,10 @@ autoChangeMock(){
 	fi
 }
 
+chromeCors(){
+	open -n -a "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --args --disable-web-security --user-data-dir="$HOME/chromecors-data"
+} 
+
 
 # ZSH Specific Configs
 # Path to your Oh My Zsh installation.
@@ -245,3 +270,7 @@ autoChangeMock(){
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+#
+if [ $PROFILING_MODE -ne 0 ]; then
+    zprof
+fi
