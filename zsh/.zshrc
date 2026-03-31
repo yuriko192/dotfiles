@@ -104,22 +104,22 @@ goUberMockGen() {
 }
 
 
-# precmd(){
-# 	if [[ ! -f /tmp/cmd_output_$$ ]];then 
-# 		return
-# 	fi
-#
-# 	if tail -n 20 /tmp/cmd_output_$$ | grep -q "go mod vendor"; then
-# 		print -P "Executing go mod vendor"
-# 		go mod vendor
-# 	fi
-# }
-#
-# preexec(){
-# 	autoChangeGo $1
-# 	autoChangeMock $1
-# 	autoGMV
-# }
+precmd(){
+	if [[ ! -f /tmp/cmd_output_$$ ]];then 
+		return
+	fi
+
+	if tail -n 20 /tmp/cmd_output_$$ | grep -q "go mod vendor"; then
+		print -P "Executing go mod vendor"
+		go mod vendor
+	fi
+}
+
+preexec(){
+	autoChangeGo $1
+	# autoChangeMock $1
+	autoGMV
+}
 
 autoGMV(){
 	exec 2> >( tee /tmp/cmd_output_$$&)
