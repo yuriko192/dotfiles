@@ -288,6 +288,7 @@ local lazyTable = {
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>a', group = 'H[A]rpoon', mode = { 'n' } },
+        { 'z', group = 'Code Folding', mode = { 'n' } },
       },
     },
   },
@@ -537,7 +538,7 @@ local lazyTable = {
   -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
+  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/lugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.

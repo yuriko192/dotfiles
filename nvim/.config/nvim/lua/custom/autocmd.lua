@@ -1,3 +1,4 @@
+-- auto start treesitter for templ
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'templ',
   callback = function()
@@ -5,11 +6,13 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
+-- Auto format on save
 vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
   pattern = { '*.templ' },
   callback = vim.lsp.buf.format,
 })
 
+-- auto reformat go code on save
 vim.api.nvim_create_autocmd('BufWritePre', {
   pattern = '*.go',
   callback = function()
