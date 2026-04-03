@@ -14,6 +14,8 @@ return {
           show_hidden = true,
         },
       }
+
+      vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Highlight current file' })
     end,
     lazy = false,
   },

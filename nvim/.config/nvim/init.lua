@@ -288,6 +288,7 @@ local lazyTable = {
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>a', group = 'H[A]rpoon', mode = { 'n' } },
+        { '<leader>u', group = '[U]ndoTree', mode = { 'n' } },
         { 'z', group = 'Code Folding', mode = { 'n' } },
       },
     },
