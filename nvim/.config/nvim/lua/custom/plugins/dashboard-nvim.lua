@@ -2,6 +2,19 @@ if vim.g.vscode then
   return {}
 end
 
+local function custom_header()
+  return {
+    '',
+    ' ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗ ',
+    ' ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║ ',
+    ' ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║ ',
+    ' ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ',
+    ' ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ',
+    ' ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ',
+    '',
+  }
+end
+
 return {
   {
     'nvimdev/dashboard-nvim',
@@ -9,8 +22,10 @@ return {
     config = function()
       require('dashboard').setup {
         config = {
+          header = custom_header(),
           shortcut = {},
           packages = { enable = true }, -- show how many plugins neovim loaded
+          project = { enable = true, limit = 8, action = 'Telescope find_files cwd=' },
           footer = {}, -- footer
         },
       }
