@@ -1,3 +1,8 @@
+-- Pi agent setup
+if not vim.g.vscode then
+  require('custom.pi').setup()
+end
+
 -- auto start treesitter for templ
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'templ',
