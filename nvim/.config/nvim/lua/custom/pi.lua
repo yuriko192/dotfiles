@@ -11,6 +11,7 @@ local state = {
   accumulated_text = "",
   status = "idle", -- idle, thinking, streaming, tool
   current_tool = nil,
+  current_model = nil, -- { id, name, provider }
   modified_files = {},
   turn_count = 0,
 }
@@ -56,7 +57,15 @@ local function update_statusline()
     if state.current_tool then
       vim.g.pi_status = vim.g.pi_status .. " (" .. state.current_tool .. ")"
     end
-    vim.cmd("redrawstatus")
+    -- Show current model
+    if state.current_model then
+      local model_display = state.current_model.name or state.current_model.id or "unknown"
+      vim.g.pi_model = model_display
+      vim.g.pi_status = vim.g.pi_status .. " | " .. model_display
+    else
+      vim.g.pi_model = ""
+    end
+    vim.cmd("redrawstatus!")
   end)
 end
 
@@ -124,6 +133,39 @@ local function handle_event(event)
     if event.type == "response" then
       if not event.success then
         notify("Error: " .. (event.error or "unknown"), vim.log.levels.ERROR)
+      end
+      -- Track model from get_state and set_model responses
+      if event.success and event.command == "get_state" and event.data and event.data.model then
+        state.current_model = event.data.model
+        update_statusline()
+      elseif event.success and event.command == "set_model" and event.data then
+        state.current_model = event.data
+        update_statusline()
+      elseif event.success and event.command == "cycle_model" and event.data and event.data.model then
+        state.current_model = event.data.model
+        update_statusline()
+      elseif event.success and event.command == "get_available_models" and event.id and event.id == state._pick_model_id then
+        state._pick_model_id = nil
+        local models = event.data and event.data.models or {}
+        if #models == 0 then
+          notify("No models available", vim.log.levels.WARN)
+        else
+          local items = {}
+          for _, m in ipairs(models) do
+            table.insert(items, {
+              display = (m.name or m.id) .. " (" .. (m.provider or "?") .. ")",
+              model = m,
+            })
+          end
+          vim.ui.select(items, {
+            prompt = "Select model:",
+            format_item = function(item) return item.display end,
+          }, function(choice)
+            if choice then
+              send_command({ type = "set_model", provider = choice.model.provider, modelId = choice.model.id })
+            end
+          end)
+        end
       end
       return
     end
@@ -199,6 +241,18 @@ local function handle_event(event)
 
       state.current_tool = nil
       update_statusline()
+
+    elseif event.type == "message_end" then
+      -- Track model from assistant messages
+      local msg = event.message
+      if msg and msg.role == "assistant" and msg.model then
+        state.current_model = {
+          id = msg.model,
+          name = msg.model,
+          provider = msg.provider,
+        }
+        update_statusline()
+      end
 
     elseif event.type == "turn_start" then
       state.turn_count = state.turn_count + 1
@@ -296,6 +350,9 @@ start = function()
   state.status = "idle"
   update_statusline()
   notify("started")
+
+  -- Fetch initial state to get current model
+  send_command({ type = "get_state" })
 end
 
 local function stop()
@@ -403,6 +460,42 @@ local function pick_modified_file()
   end)
 end
 
+-- ─── Model ─────────────────────────────────────────────────────────────────────
+
+local function show_model()
+  if state.current_model then
+    local model = state.current_model
+    local info = string.format(
+      "Model: %s\nProvider: %s\nID: %s",
+      model.name or model.id or "unknown",
+      model.provider or "unknown",
+      model.id or "unknown"
+    )
+    notify(info)
+  else
+    notify("No model info available (pi may not be running)", vim.log.levels.WARN)
+  end
+end
+
+local function cycle_model()
+  send_command({ type = "cycle_model" })
+end
+
+local function pick_model()
+  ensure_running()
+  if not state.job_id then
+    notify("Pi is not running", vim.log.levels.ERROR)
+    return
+  end
+
+  -- We need to request available models and handle the response
+  -- Use a unique id to correlate the response
+  local req_id = "pick_model_" .. tostring(os.time())
+  state._pick_model_id = req_id
+
+  send_command({ type = "get_available_models", id = req_id })
+end
+
 -- ─── Abort ─────────────────────────────────────────────────────────────────────
 
 local function abort()
@@ -441,6 +534,10 @@ local function setup()
   vim.api.nvim_create_user_command("PiClose", close_output, { desc = "Close pi output window" })
   vim.api.nvim_create_user_command("PiFiles", pick_modified_file, { desc = "Pick a file modified by pi" })
 
+  vim.api.nvim_create_user_command("PiModel", show_model, { desc = "Show current pi model" })
+  vim.api.nvim_create_user_command("PiCycleModel", cycle_model, { desc = "Cycle to next pi model" })
+  vim.api.nvim_create_user_command("PiPickModel", pick_model, { desc = "Pick pi model from available models" })
+
   vim.api.nvim_create_user_command("PiNewSession", function()
     send_command({ type = "new_session" })
     notify("new session started")
@@ -456,6 +553,8 @@ local function setup()
   vim.keymap.set("n", "<leader><C-p>o", create_output_window, { desc = "Pi: Show output" })
   vim.keymap.set("n", "<leader><C-p>c", close_output, { desc = "Pi: Close output" })
   vim.keymap.set("n", "<leader><C-p>f", pick_modified_file, { desc = "Pi: Pick modified file" })
+  vim.keymap.set("n", "<leader><C-p>m", pick_model, { desc = "Pi: Pick model" })
+  vim.keymap.set("n", "<leader><C-p>M", cycle_model, { desc = "Pi: Cycle model" })
   vim.keymap.set("n", "<leader><C-p>n", function()
     send_command({ type = "new_session" })
     notify("new session started")
@@ -470,6 +569,7 @@ local function setup()
 
   -- Expose status for statusline
   vim.g.pi_status = "💤 pi: idle"
+  vim.g.pi_model = ""
 end
 
 -- ─── Module Exports ────────────────────────────────────────────────────────────
@@ -483,6 +583,9 @@ M.prompt_with_selection = prompt_with_selection
 M.abort = abort
 M.close_output = close_output
 M.pick_modified_file = pick_modified_file
+M.show_model = show_model
+M.cycle_model = cycle_model
+M.pick_model = pick_model
 M.state = state
 
 return M
