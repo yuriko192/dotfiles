@@ -3,7 +3,6 @@ if [ $PROFILING_MODE -ne 0 ]; then
     zmodload zsh/zprof
 fi
 
-eval "$(starship init zsh)"
 
 export PATH=$PATH:/opt/homebrew/bin/zig
 export PATH=$PATH:$HOME/programs/zls
@@ -11,13 +10,15 @@ export PATH=$PATH:$HOME/bin/kafka_2.13-4.0.0/bin
 export PATH=$PATH:$HOME/go/bin
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-export PATH=/usr/local/go/bin:$PATH
+export PATH=$PATH:/usr/local/go/bin
 export PATH=$HOME/.cargo/bin:$PATH
 
 export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$PATH
+export PATH=$PATH:$GOPATH/bin
 
 export REACT_EDITOR=nvim
+
+eval "$(starship init zsh)"
 
 # Device specific configs
 file="$HOME/.env"
@@ -55,8 +56,8 @@ case ":$PATH:" in
 esac
 
 # Java JDK manager
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
+# export PATH="$HOME/.jenv/bin:$PATH"
+# eval "$(jenv init -)"
 
 # Good to have alias
 alias python="python3"
@@ -69,7 +70,7 @@ alias ls="exa"
 
 alias cats="cat"
 alias cat="bat"
-eval $(thefuck --alias)
+# eval $(thefuck --alias)
 
 # Quick go switching
 goarm() {
