@@ -33,7 +33,7 @@ load-nvm() {
   [[ -n "$__NVM_LOADED" ]] && return
   export __NVM_LOADED=1
 
-  unset -f nvm
+  unset -f nvm node npm npx
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 }
@@ -41,6 +41,21 @@ load-nvm() {
 nvm() {
   load-nvm
   nvm "$@"
+}
+
+node() {
+  load-nvm
+  node "$@"
+}
+
+npm() {
+  load-nvm
+  npm "$@"
+}
+
+npx() {
+  load-nvm
+  npx "$@"
 }
 
 # Slow initialization
@@ -51,8 +66,8 @@ nvm() {
 # pnpm
 export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
 
 # Java JDK manager
