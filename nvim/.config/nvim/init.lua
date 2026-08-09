@@ -472,12 +472,9 @@ local lazyTable = {
             local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
             local location = '%2l:%-2v'
 
-            -- Pi model/status
-            local pi_info = vim.g.pi_model or ''
-
             return MiniStatusline.combine_groups({
               { hl = mode_hl, strings = { mode } },
-              { hl = 'MiniStatuslineDevinfo', strings = { pi_info, git, diff, diagnostics } },
+              { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics } },
               '%<',
               { hl = 'MiniStatuslineFilename', strings = { filename } },
               '%=',

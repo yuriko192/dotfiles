@@ -1,4 +1,4 @@
--- Pi agent setup
+-- Multi-provider agent setup (pi / cursor)
 if not vim.g.vscode then
   require('custom.pi').setup()
 end
