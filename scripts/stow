@@ -1,42 +1,42 @@
 #!/usr/bin/env bash
+# Import live $HOME files/dirs into this repo and stow (symlink) them via GNU Stow.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-HOME_DIR="${HOME:-}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
 
-if [[ -z "$HOME_DIR" ]]; then
-  echo "HOME is not set" >&2
-  exit 1
-fi
-
-if ! command -v stow >/dev/null 2>&1; then
-  echo "stow not found; install with: brew install stow" >&2
-  exit 1
-fi
+require_home
+require_stow
+require_fzf
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") <file> [file ...]
+Usage: $(basename "$0") [--package NAME | --create-inferred] <path> [path ...]
 
-Import live files from \$HOME into this repo and stow them.
+Import live files or directories from \$HOME into this repo and stow them.
 Paths are relative to \$HOME (leading ~/ or \$HOME/ ok).
+Directories are expanded to the files inside them.
 
-If no file is given, you will be prompted.
+Options:
+  --package NAME       put all paths into this package (no inference)
+  --create-inferred    create packages from inferred names as needed
+
+If no path is given, opens a TUI to pick a package (or "+ new (inferred)")
+then file(s) / \$HOME paths.
 
 Examples:
-  $(basename "$0") .cursor/cli-config.json
-  $(basename "$0") .pi/agent/settings.json .pi/agent/models.json
+  $(basename "$0") --package cursor .cursor/cli-config.json
+  $(basename "$0") --create-inferred .config/ghostty
+  $(basename "$0") .pi/agent/settings.json
+  $(basename "$0")          # TUI
 EOF
 }
 
-normalize_relative_path() {
-  local input="$1"
-  input="${input/#\~\//}"
-  input="${input/#$HOME_DIR\//}"
-  input="${input#./}"
-  printf '%s\n' "$input"
-}
-
+# Guess the stow package from a $HOME-relative path (.config/foo → foo, .bar → bar).
+# Return codes:
+#   0  package name printed to stdout
+#   1  could not infer a package
 infer_package() {
   local relative_path="$1"
   local first="${relative_path%%/*}"
@@ -55,18 +55,7 @@ infer_package() {
   return 1
 }
 
-ask_files() {
-  local input
-  printf 'File(s) relative to $HOME (space-separated): ' >&2
-  read -r input
-  if [[ -z "$input" ]]; then
-    echo "No file provided." >&2
-    exit 1
-  fi
-  # shellcheck disable=SC2206
-  files=($input)
-}
-
+# Avoid queuing the same package twice before the final stow --adopt pass.
 package_already_queued() {
   local candidate="$1"
   local existing
@@ -78,6 +67,15 @@ package_already_queued() {
   return 1
 }
 
+# Queue a package for the final adopt/stow pass.
+queue_package() {
+  local package="$1"
+  if ! package_already_queued "$package"; then
+    unique_packages+=("$package")
+  fi
+}
+
+# Ensure the package has a placeholder file, then queue adopt.
 seed_package_file() {
   local package="$1"
   local relative_path="$2"
@@ -92,42 +90,162 @@ seed_package_file() {
   fi
 
   if [[ ! -f "$live_path" ]]; then
-    echo "skip (missing): $live_path" >&2
+    echo "skip (missing file): $live_path" >&2
     return 0
   fi
 
+  # Stow --adopt needs the path to exist in the package first.
   if [[ ! -f "$package_path" ]]; then
     : >"$package_path"
   fi
 
   echo "will adopt: $live_path -> $package/$relative_path"
-  if ! package_already_queued "$package"; then
-    unique_packages+=("$package")
+  queue_package "$package"
+}
+
+# Seed every regular file under a live directory (skips noisy trees).
+seed_package_directory() {
+  local package="$1"
+  local relative_path="$2"
+  local live_path="$HOME_DIR/$relative_path"
+  local file_path child_relative
+  local found=0
+
+  if [[ -L "$live_path" && ! -d "$live_path" ]]; then
+    echo "skip (already symlink): $live_path"
+    return 0
+  fi
+
+  if [[ ! -d "$live_path" ]]; then
+    echo "skip (missing directory): $live_path" >&2
+    return 0
+  fi
+
+  while IFS= read -r -d '' file_path; do
+    child_relative="${file_path#"$HOME_DIR"/}"
+    seed_package_file "$package" "$child_relative"
+    found=1
+  done < <(
+    find "$live_path" -type f \
+      ! -name '.DS_Store' \
+      ! -name '.nvimlog' \
+      ! -path '*/.git/*' \
+      ! -path '*/node_modules/*' \
+      ! -path '*/.Trash/*' \
+      -print0
+  )
+
+  if [[ $found -eq 0 ]]; then
+    echo "skip (empty directory): $live_path" >&2
   fi
 }
 
-if [[ $# -gt 0 ]]; then
-  if [[ "$1" == "-h" || "$1" == "--help" ]]; then
-    usage
-    exit 0
+# Seed a file or directory path from $HOME into its package.
+seed_package_path() {
+  local package="$1"
+  local relative_path="$2"
+  local live_path="$HOME_DIR/$relative_path"
+
+  if [[ -d "$live_path" ]]; then
+    seed_package_directory "$package" "$relative_path"
+    return 0
   fi
+
+  seed_package_file "$package" "$relative_path"
+}
+
+# Resolve which package a path should use for this run.
+resolve_package() {
+  local relative_path="$1"
+
+  case "$package_mode" in
+    fixed)
+      printf '%s\n' "$fixed_package"
+      return 0
+      ;;
+    create-inferred)
+      if ! infer_package "$relative_path"; then
+        return 1
+      fi
+      return 0
+      ;;
+    *)
+      if ! infer_package "$relative_path"; then
+        return 1
+      fi
+      return 0
+      ;;
+  esac
+}
+
+package_mode="infer"
+fixed_package=""
+files=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --package)
+      if [[ -z "${2:-}" ]]; then
+        echo "--package requires a name" >&2
+        exit 1
+      fi
+      package_mode="fixed"
+      fixed_package="$2"
+      shift 2
+      ;;
+    --create-inferred)
+      package_mode="create-inferred"
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [[ $# -gt 0 ]]; then
   files=("$@")
 else
-  ask_files
+  STOW_PACKAGE_MODE=""
+  STOW_PACKAGE=""
+  ask_files_tui stow
+  case "${STOW_PACKAGE_MODE:-}" in
+    fixed)
+      package_mode="fixed"
+      fixed_package="$STOW_PACKAGE"
+      ;;
+    create-inferred)
+      package_mode="create-inferred"
+      ;;
+  esac
 fi
 
 cd "$REPO_ROOT"
 
 unique_packages=()
 
+# Resolve each path into a package and prepare it for adopt.
 for raw_path in "${files[@]}"; do
   relative_path="$(normalize_relative_path "$raw_path")"
-  if [[ -z "$relative_path" ]]; then
-    echo "skip (empty path)" >&2
+  if [[ -z "$relative_path" || "$relative_path" == "." ]]; then
+    echo "skip (refusing to stow \$HOME root): $raw_path" >&2
     continue
   fi
 
-  if ! package="$(infer_package "$relative_path")"; then
+  if ! package="$(resolve_package "$relative_path")"; then
     echo "Could not infer package for: $relative_path" >&2
     printf 'Package name: ' >&2
     read -r package
@@ -137,7 +255,11 @@ for raw_path in "${files[@]}"; do
     fi
   fi
 
-  seed_package_file "$package" "$relative_path"
+  if [[ "$package_mode" == "create-inferred" || "$package_mode" == "fixed" ]]; then
+    mkdir -p "$REPO_ROOT/$package"
+  fi
+
+  seed_package_path "$package" "$relative_path"
 done
 
 if [[ ${#unique_packages[@]} -eq 0 ]]; then
@@ -145,6 +267,7 @@ if [[ ${#unique_packages[@]} -eq 0 ]]; then
   exit 0
 fi
 
+# Adopt moves the live file into the package, then creates the symlink.
 echo
 echo "Adopting and stowing: ${unique_packages[*]}"
 for package in "${unique_packages[@]}"; do

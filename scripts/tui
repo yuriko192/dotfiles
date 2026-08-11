@@ -1,0 +1,205 @@
+#!/usr/bin/env bash
+# Interactive entrypoint: pick action → packages → files (or $HOME), then run link/stow/unstow.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
+
+require_home
+require_fzf
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0")
+
+Interactive TUI for linking, stowing, or unstowing package files.
+
+Flow:
+  1. Choose action (link / stow / unstow)
+  2. Choose package (link: multi ok; stow: existing or "+ new (inferred)"; unstow: multi ok)
+  3. link: run scripts/link on the package(s)
+     stow/unstow: browse/select paths, then run scripts/stow or scripts/unstow
+       (stow: package files or ~/ \$HOME; unstow: package tree)
+
+Keys:
+  j/k       move down/up
+  g/G       top/bottom
+  ctrl-d/u  half-page
+  ctrl-f/b  page
+  /         toggle search
+  - or ..   go back to parent picker
+  ~/        browse \$HOME (stow file picker)
+  Enter     open directory, or select file
+  .         select highlighted/current directory
+  Tab       multi-select
+  Esc       cancel
+
+Requires: fzf, stow (for link/stow actions)
+EOF
+}
+
+if [[ $# -gt 0 ]]; then
+  if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    usage
+    exit 0
+  fi
+  echo "Unexpected argument: $1" >&2
+  usage >&2
+  exit 1
+fi
+
+action=""
+packages=()
+files=()
+create_inferred=0
+pick_status=0
+selected_packages=""
+selected_files=""
+
+# Nested loops so .. / - can return to the parent step.
+while true; do
+  if ! action="$(pick_action)"; then
+    echo "Cancelled." >&2
+    exit 1
+  fi
+
+  while true; do
+    packages=()
+    create_inferred=0
+    set +e
+    case "$action" in
+      link)
+        selected_packages="$(pick_packages)"
+        ;;
+      stow)
+        selected_packages="$(pick_packages --allow-new --single)"
+        ;;
+      unstow)
+        selected_packages="$(pick_packages)"
+        ;;
+      *)
+        echo "Unknown action: $action" >&2
+        exit 1
+        ;;
+    esac
+    pick_status=$?
+    set -e
+
+    if [[ $pick_status -eq 3 ]]; then
+      break
+    fi
+    if [[ $pick_status -ne 0 || -z "${selected_packages:-}" ]]; then
+      echo "No package selected." >&2
+      exit 1
+    fi
+
+    while IFS= read -r line; do
+      [[ -n "$line" ]] || continue
+      packages+=("$line")
+    done <<<"$selected_packages"
+
+    if [[ "$action" == "link" ]]; then
+      echo
+      echo "Action:  link"
+      echo "Package: ${packages[*]}"
+      echo
+      exec "$SCRIPT_DIR/link" "${packages[@]}"
+    fi
+
+    if [[ "$action" == "stow" && "${packages[0]}" == "$NEW_PACKAGE_ENTRY" ]]; then
+      create_inferred=1
+      packages=()
+    fi
+
+    while true; do
+      if [[ "$action" == "unstow" ]]; then
+        set +e
+        selected_files="$(pick_package_paths "${packages[@]}")"
+        pick_status=$?
+        set -e
+
+        if [[ $pick_status -eq 3 ]]; then
+          break
+        fi
+        if [[ $pick_status -ne 0 || -z "${selected_files:-}" ]]; then
+          echo "No file selected." >&2
+          exit 1
+        fi
+      elif [[ $create_inferred -eq 1 ]]; then
+        set +e
+        selected_files="$(pick_home_paths)"
+        pick_status=$?
+        set -e
+
+        if [[ $pick_status -eq 3 ]]; then
+          break
+        fi
+        if [[ $pick_status -ne 0 || -z "${selected_files:-}" ]]; then
+          echo "No file selected." >&2
+          exit 1
+        fi
+      else
+        set +e
+        selected_files="$(pick_files_from_packages all --home "${packages[@]}")"
+        pick_status=$?
+        set -e
+
+        if [[ $pick_status -eq 3 ]]; then
+          break
+        fi
+
+        if [[ $pick_status -eq 4 ]]; then
+          set +e
+          selected_files="$(pick_home_paths)"
+          pick_status=$?
+          set -e
+
+          if [[ $pick_status -eq 3 ]]; then
+            continue
+          fi
+          if [[ $pick_status -ne 0 || -z "${selected_files:-}" ]]; then
+            echo "No file selected." >&2
+            exit 1
+          fi
+        elif [[ $pick_status -ne 0 || -z "${selected_files:-}" ]]; then
+          echo "No file selected." >&2
+          exit 1
+        fi
+      fi
+
+      files=()
+      while IFS= read -r line; do
+        [[ -n "$line" ]] || continue
+        files+=("$line")
+      done <<<"$selected_files"
+
+      echo
+      echo "Action:  $action"
+      if [[ $create_inferred -eq 1 ]]; then
+        echo "Package: + new (inferred)"
+      else
+        echo "Package: ${packages[*]}"
+      fi
+      echo "Paths:   ${files[*]}"
+      echo
+
+      case "$action" in
+        stow)
+          if [[ $create_inferred -eq 1 ]]; then
+            exec "$SCRIPT_DIR/stow" --create-inferred -- "${files[@]}"
+          else
+            exec "$SCRIPT_DIR/stow" --package "${packages[0]}" -- "${files[@]}"
+          fi
+          ;;
+        unstow)
+          exec "$SCRIPT_DIR/unstow" "${files[@]}"
+          ;;
+        *)
+          echo "Unknown action: $action" >&2
+          exit 1
+          ;;
+      esac
+    done
+  done
+done

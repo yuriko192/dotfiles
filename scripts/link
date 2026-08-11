@@ -1,0 +1,286 @@
+#!/usr/bin/env bash
+# Generate $HOME symlinks for chosen packages via GNU Stow, with conflict prompts.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
+
+require_home
+require_stow
+require_fzf
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [package ...]
+
+Symlink package contents into \$HOME with GNU Stow.
+If no package is given, opens a TUI to pick one or more packages.
+
+On conflicts, prompts per path:
+  package  keep the package copy (backup live file, then link)
+  home     keep the live \$HOME copy (move it into the package, then link)
+  cancel   abort stowing this package
+
+Examples:
+  $(basename "$0") zsh
+  $(basename "$0") zsh nvim tmux
+  $(basename "$0")          # TUI
+EOF
+}
+
+# Extract $HOME-relative conflict paths from stow stderr/stdout.
+parse_conflict_paths() {
+  local output="$1"
+  local line path
+  local -a seen=()
+  # Regexes must live in variables: [[ =~ ]] treats > / unescaped spaces specially.
+  local re_other_pkg='existing target is stowed to a different package: (.+) =>'
+  local re_neither='existing target is neither a link nor a directory: (.+)$'
+  local re_dir_target='over existing directory target ([^[:space:]]+)'
+  local re_file_target='over existing target ([^[:space:]]+) since'
+
+  while IFS= read -r line; do
+    path=""
+    if [[ "$line" =~ $re_other_pkg ]]; then
+      path="${BASH_REMATCH[1]}"
+    elif [[ "$line" =~ $re_neither ]]; then
+      path="${BASH_REMATCH[1]}"
+    elif [[ "$line" =~ $re_dir_target ]]; then
+      path="${BASH_REMATCH[1]}"
+    elif [[ "$line" =~ $re_file_target ]]; then
+      path="${BASH_REMATCH[1]}"
+    fi
+
+    [[ -n "$path" ]] || continue
+
+    local already=0
+    local existing
+    for existing in "${seen[@]+"${seen[@]}"}"; do
+      if [[ "$existing" == "$path" ]]; then
+        already=1
+        break
+      fi
+    done
+    if [[ $already -eq 0 ]]; then
+      seen+=("$path")
+      printf '%s\n' "$path"
+    fi
+  done <<<"$output"
+}
+
+# Ask which side wins for one conflicting path.
+# Prints: package | home | cancel
+ask_conflict_choice() {
+  local package="$1"
+  local relative_path="$2"
+  local live_path="$HOME_DIR/$relative_path"
+  local package_path="$REPO_ROOT/$package/$relative_path"
+  local selected
+
+  echo >&2
+  echo "Conflict in package '$package': $relative_path" >&2
+  echo "  package: $package_path" >&2
+  echo "  home:    $live_path" >&2
+
+  selected="$(
+    printf '%s\n' \
+      "package  keep package copy (backup live, then link)" \
+      "home     keep \$HOME copy (move into package, then link)" \
+      "cancel   abort stowing $package" \
+      | fzf_vim --prompt 'Resolve> ' \
+        --header 'j/k move · / search · Enter confirm · Esc cancel' \
+        --height 40%
+  )" || true
+
+  if [[ -z "${selected:-}" ]]; then
+    printf '%s\n' cancel
+    return 0
+  fi
+
+  printf '%s\n' "${selected%% *}"
+}
+
+# Move a conflicting live path aside so stow can create the package symlink.
+resolve_keep_package() {
+  local relative_path="$1"
+  local live_path="$HOME_DIR/$relative_path"
+  local backup
+
+  if [[ ! -e "$live_path" && ! -L "$live_path" ]]; then
+    return 0
+  fi
+
+  if [[ -L "$live_path" ]]; then
+    rm "$live_path"
+    echo "removed symlink: $live_path"
+    return 0
+  fi
+
+  backup="${live_path}.bak.$(date +%Y%m%d%H%M%S)"
+  mv "$live_path" "$backup"
+  echo "backed up: $live_path -> $backup"
+}
+
+# Move the live path into the package so the home content becomes the source of truth.
+resolve_keep_home() {
+  local package="$1"
+  local relative_path="$2"
+  local live_path="$HOME_DIR/$relative_path"
+  local package_path="$REPO_ROOT/$package/$relative_path"
+
+  if [[ ! -e "$live_path" && ! -L "$live_path" ]]; then
+    echo "skip (missing live path): $live_path" >&2
+    return 0
+  fi
+
+  if [[ -L "$live_path" ]]; then
+    # Already a symlink (often to another package); keeping "home" means leave it.
+    echo "keeping existing symlink: $live_path"
+    return 1
+  fi
+
+  mkdir -p "$(dirname "$package_path")"
+  if [[ -e "$package_path" || -L "$package_path" ]]; then
+    rm -rf "$package_path"
+  fi
+  mv "$live_path" "$package_path"
+  echo "adopted: $live_path -> $package/$relative_path"
+  return 0
+}
+
+# Stow one package; on conflicts, prompt and retry once resolutions are applied.
+link_package() {
+  local package="$1"
+  local output status
+  local -a conflicts=()
+  local relative_path choice
+  local skip_package=0
+  local attempt
+
+  if [[ ! -d "$REPO_ROOT/$package" ]]; then
+    echo "unknown package: $package" >&2
+    return 1
+  fi
+
+  for attempt in 1 2 3; do
+    set +e
+    output="$(stow -v "$package" 2>&1)"
+    status=$?
+    set -e
+
+    if [[ -n "$output" ]]; then
+      printf '%s\n' "$output"
+    fi
+
+    if [[ $status -eq 0 ]]; then
+      echo "linked: $package"
+      return 0
+    fi
+
+    conflicts=()
+    while IFS= read -r relative_path; do
+      [[ -n "$relative_path" ]] || continue
+      conflicts+=("$relative_path")
+    done < <(parse_conflict_paths "$output")
+
+    if [[ ${#conflicts[@]} -eq 0 ]]; then
+      echo "stow failed for $package (no parseable conflicts)." >&2
+      return 1
+    fi
+
+    echo
+    echo "Conflicts while stowing '$package' (${#conflicts[@]}):"
+    skip_package=0
+    for relative_path in "${conflicts[@]}"; do
+      choice="$(ask_conflict_choice "$package" "$relative_path")"
+      case "$choice" in
+        package)
+          resolve_keep_package "$relative_path"
+          ;;
+        home)
+          if ! resolve_keep_home "$package" "$relative_path"; then
+            # Existing symlink kept → cannot stow this package path without --override.
+            echo "Cannot keep existing link and also stow '$package' for $relative_path." >&2
+            echo "Cancelled stow for $package." >&2
+            skip_package=1
+            break
+          fi
+          ;;
+        cancel | *)
+          echo "Cancelled stow for $package." >&2
+          skip_package=1
+          break
+          ;;
+      esac
+    done
+
+    if [[ $skip_package -eq 1 ]]; then
+      return 1
+    fi
+  done
+
+  echo "Gave up after repeated conflicts for $package." >&2
+  return 1
+}
+
+packages=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [[ $# -gt 0 ]]; then
+  packages=("$@")
+else
+  selected_packages=""
+  pick_status=0
+  set +e
+  selected_packages="$(pick_packages)"
+  pick_status=$?
+  set -e
+
+  if [[ $pick_status -eq 3 || $pick_status -ne 0 || -z "${selected_packages:-}" ]]; then
+    echo "No package selected." >&2
+    exit 1
+  fi
+
+  while IFS= read -r line; do
+    [[ -n "$line" ]] || continue
+    packages+=("$line")
+  done <<<"$selected_packages"
+fi
+
+cd "$REPO_ROOT"
+
+failed=0
+for package in "${packages[@]}"; do
+  if ! link_package "$package"; then
+    failed=1
+  fi
+done
+
+echo
+if [[ $failed -eq 0 ]]; then
+  echo "Done."
+else
+  echo "Done with errors." >&2
+  exit 1
+fi

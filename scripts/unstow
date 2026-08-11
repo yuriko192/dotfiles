@@ -1,49 +1,36 @@
 #!/usr/bin/env bash
+# Turn a stowed $HOME symlink into a real file by moving it out of the package.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-HOME_DIR="${HOME:-}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=common.sh
+source "$SCRIPT_DIR/common.sh"
 
-if [[ -z "$HOME_DIR" ]]; then
-  echo "HOME is not set" >&2
-  exit 1
-fi
+require_home
+require_fzf
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") <file> [file ...]
+Usage: $(basename "$0") <path> [path ...]
 
-Unstow individual files: remove the \$HOME symlink and restore a real copy
-from the package. Paths are relative to \$HOME (leading ~/ or \$HOME/ ok).
+Unstow files or directories: remove \$HOME symlinks and move the real files
+out of the package into \$HOME. Paths are relative to \$HOME
+(leading ~/ or \$HOME/ ok). Directories expand to the files inside them.
 
-If no file is given, you will be prompted.
+If no path is given, opens a TUI to browse package trees
+(Enter open dir / select file, . unstow dir, Tab multi-select).
 
 Examples:
   $(basename "$0") .cursor/cli-config.json
-  $(basename "$0") .pi/agent/settings.json .pi/agent/models.json
+  $(basename "$0") .config/ghostty
+  $(basename "$0")          # TUI
 EOF
 }
 
-normalize_relative_path() {
-  local input="$1"
-  input="${input/#\~\//}"
-  input="${input/#$HOME_DIR\//}"
-  input="${input#./}"
-  printf '%s\n' "$input"
-}
-
-ask_files() {
-  local input
-  printf 'File(s) relative to $HOME (space-separated): ' >&2
-  read -r input
-  if [[ -z "$input" ]]; then
-    echo "No file provided." >&2
-    exit 1
-  fi
-  # shellcheck disable=SC2206
-  files=($input)
-}
-
+# Find which package owns this $HOME-relative path; error if more than one matches.
+# Return codes:
+#   0  package file path printed to stdout
+#   1  not found, or ambiguous across packages
 find_package_file() {
   local relative_path="$1"
   local match=""
@@ -68,6 +55,7 @@ find_package_file() {
   printf '%s\n' "$match"
 }
 
+# Replace a $HOME symlink with the package file (moved out of the package).
 unstow_file() {
   local relative_path
   relative_path="$(normalize_relative_path "$1")"
@@ -87,8 +75,8 @@ unstow_file() {
   if [[ -L "$live_path" ]]; then
     rm "$live_path"
     mkdir -p "$(dirname "$live_path")"
-    cp "$package_path" "$live_path"
-    echo "unstowed: $live_path (restored real file from ${package_path#"$REPO_ROOT"/})"
+    mv "$package_path" "$live_path"
+    echo "unstowed: $live_path (moved from ${package_path#"$REPO_ROOT"/})"
     return 0
   fi
 
@@ -100,6 +88,64 @@ unstow_file() {
   echo "skip (missing in \$HOME): $live_path" >&2
 }
 
+# Unstow every regular file under a package directory path.
+unstow_directory() {
+  local relative_path
+  relative_path="$(normalize_relative_path "$1")"
+  local package candidate file_path child_relative
+  local found=0
+
+  if [[ -z "$relative_path" ]]; then
+    echo "skip (refusing to unstow package root)" >&2
+    return 0
+  fi
+
+  for package in "$REPO_ROOT"/*/; do
+    [[ -d "$package" ]] || continue
+    candidate="${package%/}/$relative_path"
+    [[ -d "$candidate" ]] || continue
+
+    while IFS= read -r -d '' file_path; do
+      # file_path is REPO_ROOT/pkg/rel/... — strip REPO_ROOT/pkg/
+      child_relative="${file_path#${package%/}/}"
+      unstow_file "$child_relative"
+      found=1
+    done < <(
+      find "$candidate" -type f \
+        ! -name '.DS_Store' \
+        ! -name '.nvimlog' \
+        -print0
+    )
+  done
+
+  if [[ $found -eq 0 ]]; then
+    echo "skip (no package files under directory): $relative_path" >&2
+  fi
+}
+
+# Unstow a file or directory path.
+unstow_path() {
+  local relative_path
+  relative_path="$(normalize_relative_path "$1")"
+  local package candidate
+
+  if [[ -z "$relative_path" ]]; then
+    echo "skip (empty path)" >&2
+    return 0
+  fi
+
+  for package in "$REPO_ROOT"/*/; do
+    candidate="${package%/}/$relative_path"
+    if [[ -d "$candidate" ]]; then
+      unstow_directory "$relative_path"
+      return 0
+    fi
+  done
+
+  unstow_file "$relative_path"
+}
+
+# CLI paths, or open the TUI when none were given.
 if [[ $# -gt 0 ]]; then
   if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     usage
@@ -107,12 +153,12 @@ if [[ $# -gt 0 ]]; then
   fi
   files=("$@")
 else
-  ask_files
+  ask_files_tui unstow
 fi
 
 for file_path in "${files[@]}"; do
-  unstow_file "$file_path"
+  unstow_path "$file_path"
 done
 
 echo
-echo "Done. Package copies remain under $REPO_ROOT."
+echo "Done. Unstowed files were moved out of $REPO_ROOT."
