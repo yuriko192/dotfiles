@@ -1,4 +1,8 @@
 {
-  "lastChangelogVersion": "0.84.1",
-  "theme": "dark"
+  "lastChangelogVersion": "0.82.0",
+  "theme": "dark",
+  "defaultProvider": "cosmoshub",
+  "defaultModel": "minimax-m2.5",
+  "defaultThinkingLevel": "medium",
+  "packages": []
 }
