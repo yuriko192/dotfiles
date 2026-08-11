@@ -2,10 +2,12 @@
 
 Personal configs managed with [GNU Stow](https://www.gnu.org/software/stow/). Each top-level directory is a **package**. Stow symlinks the contents of a package into `$HOME`.
 
+Helper scripts under `scripts/` wrap common workflows (link packages, import from `$HOME`, unstow files) with optional `fzf` TUIs.
+
 ## Prerequisites
 
 ```bash
-brew install stow
+brew install stow fzf
 ```
 
 Clone this repo into `~/dotfiles` (or update the paths below if you use another location):
@@ -21,6 +23,7 @@ Paths inside a package mirror paths under `$HOME`:
 
 ```text
 dotfiles/
+├── scripts/                      helper CLIs (not a stow package)
 ├── zsh/.zshrc                    -> ~/.zshrc
 ├── nvim/.editorconfig            -> ~/.editorconfig
 ├── nvim/.config/nvim/...         -> ~/.config/nvim/...
@@ -31,7 +34,49 @@ dotfiles/
 └── pi/.pi/...
 ```
 
-## Restore (install on a machine)
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/link` | Symlink package(s) into `$HOME` (GNU Stow), with conflict prompts |
+| `scripts/stow` | Import live `$HOME` paths into a package, then adopt/stow |
+| `scripts/unstow` | Remove `$HOME` symlinks and move the real files out of the package |
+| `scripts/tui` | Interactive entrypoint: pick `link` / `stow` / `unstow`, then packages/paths |
+| `scripts/common.sh` | Shared helpers (sourced by the scripts above; not run directly) |
+
+All interactive scripts expect `fzf`. Keys: `j`/`k` move, `/` search, `Tab` multi-select, `-` or `..` go back, `Esc` cancel.
+
+### Link packages (restore / install)
+
+```bash
+cd ~/dotfiles
+scripts/link              # pick package(s)
+scripts/link zsh nvim     # link specific packages
+scripts/tui               # choose link, then packages
+```
+
+On conflicts, `scripts/link` prompts per path:
+
+- **package** — backup the live file (`*.bak.<timestamp>`), then link the package copy
+- **home** — move the live file into the package (adopt), then link
+- **cancel** — abort stowing that package
+
+### Import from `$HOME` into a package
+
+```bash
+scripts/stow --package zsh .zshrc
+scripts/stow --create-inferred .config/ghostty
+scripts/stow                  # TUI: package (or + new) → files / ~/
+```
+
+### Unstow a file (real file in `$HOME`, removed from the package)
+
+```bash
+scripts/unstow .zshrc
+scripts/unstow                # TUI: browse package trees
+```
+
+## Restore with raw Stow
 
 From `~/dotfiles`, stow the packages you want:
 
@@ -59,6 +104,8 @@ Dry-run first (no changes):
 stow -n -v zsh
 ```
 
+Prefer `scripts/link` when you want conflict prompts instead of manual backup/adopt.
+
 ### If Stow refuses because a file already exists
 
 **Option A — back up, then stow**
@@ -84,8 +131,10 @@ Only use `--adopt` when you intend the device copy to become the source of truth
 
 1. Create a package directory (or reuse an existing one).
 2. Place the file using the same relative path it should have under `$HOME`.
-3. Stow the package.
+3. Link the package (`scripts/link <pkg>` or `stow <pkg>`).
 4. Commit.
+
+Or import a live path with `scripts/stow`.
 
 ### Example: add `~/.gitconfig`
 
@@ -93,7 +142,7 @@ Only use `--adopt` when you intend the device copy to become the source of truth
 cd ~/dotfiles
 mkdir -p git
 mv ~/.gitconfig git/.gitconfig
-stow git
+scripts/link git
 git add git
 git commit -m "Add gitconfig via stow"
 ```
@@ -104,7 +153,7 @@ git commit -m "Add gitconfig via stow"
 cd ~/dotfiles
 mkdir -p opencode/.config/opencode
 mv ~/.config/opencode/opencode.jsonc opencode/.config/opencode/opencode.jsonc
-stow opencode
+scripts/link opencode
 ```
 
 ### Example: add into an existing package
@@ -115,6 +164,7 @@ cd ~/dotfiles
 mv ~/.config/nvim/lua/custom/plugins/foo.lua \
   nvim/.config/nvim/lua/custom/plugins/foo.lua
 stow -R nvim
+# or: scripts/link nvim
 ```
 
 ## Update / restow
@@ -124,10 +174,11 @@ After pulling or editing package files:
 ```bash
 cd ~/dotfiles
 git pull
-stow -R zsh nvim tmux ghostty starship lazygit pi
+scripts/link zsh nvim tmux ghostty starship lazygit pi
+# or: stow -R zsh nvim tmux ghostty starship lazygit pi
 ```
 
-`-R` (restow) removes old symlinks for the package, then stows again.
+`stow -R` (restow) removes old symlinks for the package, then stows again.
 
 ## Remove a package from `$HOME`
 
@@ -138,7 +189,9 @@ stow -D zsh
 
 This only deletes the symlinks Stow created. Package files in the repo stay intact.
 
-## Useful flags
+To turn individual stowed files into real `$HOME` files (and remove them from the package), use `scripts/unstow`.
+
+## Useful Stow flags
 
 | Flag | Meaning |
 |------|---------|
@@ -159,3 +212,4 @@ stow -t "$HOME" zsh
 - Prefer one package per tool (`zsh`, `nvim`, `tmux`, …).
 - Do not commit secrets (tokens, `auth.json` with real credentials, private keys). Use empty stubs or keep those files unstowed on the machine.
 - Avoid stowing large app data dirs (`node_modules`, session logs, databases). Stow only the config files you care about.
+- See [AGENTS.md](AGENTS.md) for conventions when editing this repo with an AI agent.
