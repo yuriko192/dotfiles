@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+HOME_DIR="${HOME:-}"
+
+if [[ -z "$HOME_DIR" ]]; then
+  echo "HOME is not set" >&2
+  exit 1
+fi
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") <file> [file ...]
+
+Unstow individual files: remove the \$HOME symlink and restore a real copy
+from the package. Paths are relative to \$HOME (leading ~/ or \$HOME/ ok).
+
+If no file is given, you will be prompted.
+
+Examples:
+  $(basename "$0") .cursor/cli-config.json
+  $(basename "$0") .pi/agent/settings.json .pi/agent/models.json
+EOF
+}
+
+normalize_relative_path() {
+  local input="$1"
+  input="${input/#\~\//}"
+  input="${input/#$HOME_DIR\//}"
+  input="${input#./}"
+  printf '%s\n' "$input"
+}
+
+ask_files() {
+  local input
+  printf 'File(s) relative to $HOME (space-separated): ' >&2
+  read -r input
+  if [[ -z "$input" ]]; then
+    echo "No file provided." >&2
+    exit 1
+  fi
+  # shellcheck disable=SC2206
+  files=($input)
+}
+
+find_package_file() {
+  local relative_path="$1"
+  local match=""
+  local candidate
+
+  for candidate in "$REPO_ROOT"/*/"$relative_path"; do
+    if [[ -f "$candidate" ]]; then
+      if [[ -n "$match" ]]; then
+        echo "ambiguous package file for $relative_path:" >&2
+        echo "  $match" >&2
+        echo "  $candidate" >&2
+        return 1
+      fi
+      match="$candidate"
+    fi
+  done
+
+  if [[ -z "$match" ]]; then
+    return 1
+  fi
+
+  printf '%s\n' "$match"
+}
+
+unstow_file() {
+  local relative_path
+  relative_path="$(normalize_relative_path "$1")"
+  local live_path="$HOME_DIR/$relative_path"
+  local package_path
+
+  if [[ -z "$relative_path" ]]; then
+    echo "skip (empty path)" >&2
+    return 0
+  fi
+
+  if ! package_path="$(find_package_file "$relative_path")"; then
+    echo "skip (not in any package): $relative_path" >&2
+    return 0
+  fi
+
+  if [[ -L "$live_path" ]]; then
+    rm "$live_path"
+    mkdir -p "$(dirname "$live_path")"
+    cp "$package_path" "$live_path"
+    echo "unstowed: $live_path (restored real file from ${package_path#"$REPO_ROOT"/})"
+    return 0
+  fi
+
+  if [[ -f "$live_path" ]]; then
+    echo "skip (already a real file): $live_path"
+    return 0
+  fi
+
+  echo "skip (missing in \$HOME): $live_path" >&2
+}
+
+if [[ $# -gt 0 ]]; then
+  if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    usage
+    exit 0
+  fi
+  files=("$@")
+else
+  ask_files
+fi
+
+for file_path in "${files[@]}"; do
+  unstow_file "$file_path"
+done
+
+echo
+echo "Done. Package copies remain under $REPO_ROOT."

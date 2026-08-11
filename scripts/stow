@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+HOME_DIR="${HOME:-}"
+
+if [[ -z "$HOME_DIR" ]]; then
+  echo "HOME is not set" >&2
+  exit 1
+fi
+
+if ! command -v stow >/dev/null 2>&1; then
+  echo "stow not found; install with: brew install stow" >&2
+  exit 1
+fi
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") <file> [file ...]
+
+Import live files from \$HOME into this repo and stow them.
+Paths are relative to \$HOME (leading ~/ or \$HOME/ ok).
+
+If no file is given, you will be prompted.
+
+Examples:
+  $(basename "$0") .cursor/cli-config.json
+  $(basename "$0") .pi/agent/settings.json .pi/agent/models.json
+EOF
+}
+
+normalize_relative_path() {
+  local input="$1"
+  input="${input/#\~\//}"
+  input="${input/#$HOME_DIR\//}"
+  input="${input#./}"
+  printf '%s\n' "$input"
+}
+
+infer_package() {
+  local relative_path="$1"
+  local first="${relative_path%%/*}"
+
+  if [[ "$relative_path" == .config/* ]]; then
+    local rest="${relative_path#.config/}"
+    printf '%s\n' "${rest%%/*}"
+    return 0
+  fi
+
+  if [[ "$first" == .* ]]; then
+    printf '%s\n' "${first#.}"
+    return 0
+  fi
+
+  return 1
+}
+
+ask_files() {
+  local input
+  printf 'File(s) relative to $HOME (space-separated): ' >&2
+  read -r input
+  if [[ -z "$input" ]]; then
+    echo "No file provided." >&2
+    exit 1
+  fi
+  # shellcheck disable=SC2206
+  files=($input)
+}
+
+package_already_queued() {
+  local candidate="$1"
+  local existing
+  for existing in "${unique_packages[@]+"${unique_packages[@]}"}"; do
+    if [[ "$existing" == "$candidate" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+seed_package_file() {
+  local package="$1"
+  local relative_path="$2"
+  local live_path="$HOME_DIR/$relative_path"
+  local package_path="$REPO_ROOT/$package/$relative_path"
+
+  mkdir -p "$(dirname "$package_path")"
+
+  if [[ -L "$live_path" ]]; then
+    echo "skip (already symlink): $live_path"
+    return 0
+  fi
+
+  if [[ ! -f "$live_path" ]]; then
+    echo "skip (missing): $live_path" >&2
+    return 0
+  fi
+
+  if [[ ! -f "$package_path" ]]; then
+    : >"$package_path"
+  fi
+
+  echo "will adopt: $live_path -> $package/$relative_path"
+  if ! package_already_queued "$package"; then
+    unique_packages+=("$package")
+  fi
+}
+
+if [[ $# -gt 0 ]]; then
+  if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    usage
+    exit 0
+  fi
+  files=("$@")
+else
+  ask_files
+fi
+
+cd "$REPO_ROOT"
+
+unique_packages=()
+
+for raw_path in "${files[@]}"; do
+  relative_path="$(normalize_relative_path "$raw_path")"
+  if [[ -z "$relative_path" ]]; then
+    echo "skip (empty path)" >&2
+    continue
+  fi
+
+  if ! package="$(infer_package "$relative_path")"; then
+    echo "Could not infer package for: $relative_path" >&2
+    printf 'Package name: ' >&2
+    read -r package
+    if [[ -z "$package" ]]; then
+      echo "No package provided; aborting." >&2
+      exit 1
+    fi
+  fi
+
+  seed_package_file "$package" "$relative_path"
+done
+
+if [[ ${#unique_packages[@]} -eq 0 ]]; then
+  echo "Nothing to stow."
+  exit 0
+fi
+
+echo
+echo "Adopting and stowing: ${unique_packages[*]}"
+for package in "${unique_packages[@]}"; do
+  stow --adopt -v "$package"
+done
+
+echo
+echo "Done."
+echo "Review with: git -C \"$REPO_ROOT\" status && git -C \"$REPO_ROOT\" diff"
+echo "Note: do not commit secrets."
