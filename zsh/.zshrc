@@ -81,7 +81,7 @@ alias gcz="git cz"
 
 # App aliases
 alias lss="ls"
-alias ls="exa"
+alias ls="eza --group-directories-first --icons --hyperlink"
 
 alias cats="cat"
 alias cat="bat"
