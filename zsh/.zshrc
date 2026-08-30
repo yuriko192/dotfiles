@@ -44,42 +44,12 @@ if [ -f "$file" ]; 	then
 	source "$file" 
 fi 
 
-# NVM
-
-export NVM_DIR="$HOME/.nvm"
-load-nvm() {
-  [[ -n "$__NVM_LOADED" ]] && return
-  export __NVM_LOADED=1
-
-  unset -f nvm node npm npx
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-}
-
-nvm() {
-  load-nvm
-  nvm "$@"
-}
-
-node() {
-  load-nvm
-  node "$@"
-}
-
-npm() {
-  load-nvm
-  npm "$@"
-}
-
-npx() {
-  load-nvm
-  npx "$@"
-}
-
-# Slow initialization
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# fnm
+FNM_PATH="/home/yuriko192/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell zsh)"
+fi
 
 # pnpm
 export PNPM_HOME="$HOME/Library/pnpm"
@@ -218,3 +188,8 @@ chromeCors(){
 if [ $PROFILING_MODE -ne 0 ]; then
     zprof
 fi
+
+if command -v fastfetch >/dev/null 2>&1; then
+    fastfetch
+fi
+
