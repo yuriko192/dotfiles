@@ -75,8 +75,6 @@ alias cats="cat"
 alias cat="bat"
 # eval $(thefuck --alias)
 
-alias sudo="doas"
-
 chromeCors(){
 	open -n -a "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --args --disable-web-security --user-data-dir="$HOME/chromecors-data"
 } 
@@ -189,7 +187,5 @@ if [ $PROFILING_MODE -ne 0 ]; then
     zprof
 fi
 
-if command -v fastfetch >/dev/null 2>&1; then
-    fastfetch
-fi
+fastfetch
 
