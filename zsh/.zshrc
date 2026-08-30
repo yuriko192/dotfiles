@@ -3,6 +3,24 @@ if [ $PROFILING_MODE -ne 0 ]; then
     zmodload zsh/zprof
 fi
 
+# The following lines were added by compinstall
+
+zstyle ':completion:*' completer _expand _complete _ignored
+zstyle ':completion:*' matcher-list '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'r:|[._-]=** r:|=** l:|=*' 'r:|[._-]=** r:|=**'
+zstyle :compinstall filename '/home/yuriko192/.zshrc'
+zstyle ':completion::complete:*' use-cache 1
+
+
+autoload -Uz compinit promptinit
+compinit
+promptinit; prompt gentoo
+# End of lines added by compinstall
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.histfile
+HISTSIZE=1000
+SAVEHIST=1000
+bindkey -v
+# End of lines configured by zsh-newuser-install
 
 export PATH=$PATH:/opt/homebrew/bin/zig
 export PATH=$PATH:$HOME/programs/zls
@@ -87,98 +105,7 @@ alias cats="cat"
 alias cat="bat"
 # eval $(thefuck --alias)
 
-# Quick go switching
-goarm() {
-   if [ -z ${ORIGINAL_PATH+x} ]; then
-    export ORIGINAL_PATH="$PATH"
-  fi
-
-  export GOROOT="/usr/local/go_arm_1.24"
-  export PATH="/usr/local/go_arm_1.24/bin:$ORIGINAL_PATH"
-  echo "Switched to Go ARM 1.24"
-}
-
-goamd() {
-   if [ -z ${ORIGINAL_PATH+x} ]; then
-    export ORIGINAL_PATH="$PATH"
-  fi
-
-  export GOROOT="/usr/local/go_amd_1.24"
-  export PATH="/usr/local/go_amd_1.24/bin:$ORIGINAL_PATH"
-  echo "Switched to Go AMD 1.24"
-}
-
-
-goOldMock() {
-    cp -v "$HOME/go/bin/oldmockgen" "$HOME/go/bin/mockgen"  
-	echo "Switched to oldmockgen"
-}
-
-goUberMockGen() {
-    cp -v "$HOME/go/bin/ubermockgen" "$HOME/go/bin/mockgen"  
-	echo "Switched to ubermockgen"
-}
-
-
-precmd(){
-	if [[ ! -f /tmp/cmd_output_$$ ]];then 
-		return
-	fi
-
-	if tail -n 20 /tmp/cmd_output_$$ | grep -q "go mod vendor"; then
-		print -P "Executing go mod vendor"
-		go mod vendor
-	fi
-}
-
-preexec(){
-	autoChangeGo $1
-	# autoChangeMock $1
-	autoGMV
-}
-
-autoGMV(){
-	exec 2> >( tee /tmp/cmd_output_$$&)
-}
-
-
-autoChangeGo(){
-	if [[ "$1" != *test* ]]; then
-        return 
-	fi
-    
-	currDir=${PWD##*/}
-
-	if [[ $currDir == "TIX-CORPORATE-BE" ]]
-	then
-		goamd
-		return
-	fi
-
-}
-
-autoChangeMock(){
-	if [[ $1 != make* ]]
-	then
-		return
-	fi
-	
-
-	currDir=${PWD##*/}
-
-	if [[ $currDir == "TIX-CORPORATE-BE" ]]
-	then
-		goOldMock
-		return
-	fi
-
-
-	if [[ $currDir == "TIX-CORPORATE-OPEN-API" ]]
-	then
-		goUberMockGen
-		return
-	fi
-}
+alias sudo="doas"
 
 chromeCors(){
 	open -n -a "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --args --disable-web-security --user-data-dir="$HOME/chromecors-data"
