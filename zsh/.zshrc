@@ -11,15 +11,13 @@ zstyle :compinstall filename '/home/yuriko192/.zshrc'
 zstyle ':completion::complete:*' use-cache 1
 
 
-autoload -Uz compinit promptinit
+autoload -Uz compinit 
 compinit
-promptinit; prompt gentoo
 # End of lines added by compinstall
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
-bindkey -v
 # End of lines configured by zsh-newuser-install
 
 export PATH=$PATH:/opt/homebrew/bin/zig

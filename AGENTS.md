@@ -36,6 +36,7 @@ Shared logic lives in `scripts/common.sh`. Entrypoints:
 - Update `README.md` when user-facing script behavior or workflows change.
 - Update this file when agent-relevant conventions or script roles change.
 - Do not run package installs via agent tooling beyond what’s already assumed (`stow`, `fzf` via Homebrew); if a new brew dependency is required, document it in the README prerequisites.
+- Neovim is 0.12. Keep `nvim-treesitter` on `branch = 'main'` (not `master`). Parser install needs `tree-sitter` CLI (`tree-sitter-cli`); without it, highlighting still uses bundled/already-installed parsers.
 
 ## Safety
 
