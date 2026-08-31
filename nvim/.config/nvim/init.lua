@@ -490,53 +490,74 @@ local lazyTable = {
     end,
   },
   { -- Highlight, edit, and navigate code
+    -- Neovim 0.12+ requires the rewrite on `main`. `master` is locked to 0.11 and
+    -- crashes on markdown fenced code blocks (`node:range` is nil).
     'nvim-treesitter/nvim-treesitter',
-    branch = 'master',
+    branch = 'main',
     lazy = false,
-    sync_install = false,
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = {
-        'bash',
-        'c',
-        'diff',
-        'html',
-        'java',
-        'lua',
-        'luadoc',
-        'markdown',
-        'markdown_inline',
-        'query',
-        'vim',
-        'vimdoc',
-        'templ',
-        'go',
-        'gotmpl',
-        'javascript',
-        'odin',
-        'typescript',
-        'python',
-        'zig',
-      },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+    config = function()
+      -- Same as old `auto_install = true`: only fetch a parser when that
+      -- filetype is opened and no parser is loaded yet. `main` has no
+      -- `ensure_installed` / `auto_install` keys.
+      local has_treesitter_cli = vim.fn.executable 'tree-sitter' == 1
+      local available_parsers = require('nvim-treesitter').get_available()
+      local injection_langs = {
+        markdown = { 'markdown_inline' },
+      }
+
+      ---@param buf integer
+      ---@param language string
+      ---@return boolean
+      local function treesitter_try_attach(buf, language)
+        if not vim.treesitter.language.add(language) then
+          return false
+        end
+        vim.treesitter.start(buf, language)
+        local has_indent_query = vim.treesitter.query.get(language, 'indents') ~= nil
+        if has_indent_query then
+          vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end
+        return true
+      end
+
+      ---@param language string
+      ---@param on_done fun()
+      local function install_then(language, on_done)
+        if not has_treesitter_cli or not vim.tbl_contains(available_parsers, language) then
+          return
+        end
+        require('nvim-treesitter').install(language):await(on_done)
+      end
+
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function(args)
+          local buf = args.buf
+          local language = vim.treesitter.language.get_lang(args.match)
+          if not language then
+            return
+          end
+
+          local function attach_with_injections()
+            if not treesitter_try_attach(buf, language) then
+              return false
+            end
+            for _, extra in ipairs(injection_langs[language] or {}) do
+              if not vim.treesitter.language.add(extra) then
+                install_then(extra, function()
+                  vim.treesitter.language.add(extra)
+                end)
+              end
+            end
+            return true
+          end
+
+          if not attach_with_injections() then
+            install_then(language, attach_with_injections)
+          end
+        end,
+      })
+    end,
   },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and

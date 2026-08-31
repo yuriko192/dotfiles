@@ -307,19 +307,22 @@ return {
     })
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+    -- mason-lspconfig v2 dropped `handlers`. Apply overrides through vim.lsp.config
+    -- so automatic_enable uses them. filetypes must be assigned after resolve:
+    -- vim.tbl_deep_extend merges list indexes and would keep default `markdown`.
+    for server_name, server in pairs(servers) do
+      server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+      vim.lsp.config(server_name, server)
+    end
+
     require('mason-lspconfig').setup {
       ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-      automatic_installation = false,
-      handlers = {
-        function(server_name)
-          local server = servers[server_name] or {}
-          -- This handles overriding only values explicitly passed
-          -- by the server configuration above. Useful when disabling
-          -- certain features of an LSP (for example, turning off formatting for ts_ls)
-          server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-          require('lspconfig')[server_name].setup(server)
-        end,
-      },
     }
+
+    for server_name, server in pairs(servers) do
+      if server.filetypes then
+        vim.lsp.config[server_name].filetypes = server.filetypes
+      end
+    end
   end,
 }
