@@ -464,15 +464,15 @@ local lazyTable = {
         use_icons = vim.g.have_nerd_font,
         content = {
           active = function()
-            local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
-            local git = MiniStatusline.section_git({ trunc_width = 40 })
-            local diff = MiniStatusline.section_diff({ trunc_width = 75 })
-            local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
-            local filename = MiniStatusline.section_filename({ trunc_width = 140 })
-            local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
+            local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
+            local git = MiniStatusline.section_git { trunc_width = 40 }
+            local diff = MiniStatusline.section_diff { trunc_width = 75 }
+            local diagnostics = MiniStatusline.section_diagnostics { trunc_width = 75 }
+            local filename = MiniStatusline.section_filename { trunc_width = 140 }
+            local fileinfo = MiniStatusline.section_fileinfo { trunc_width = 120 }
             local location = '%2l:%-2v'
 
-            return MiniStatusline.combine_groups({
+            return MiniStatusline.combine_groups {
               { hl = mode_hl, strings = { mode } },
               { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics } },
               '%<',
@@ -480,7 +480,7 @@ local lazyTable = {
               '%=',
               { hl = 'MiniStatuslineFileinfo', strings = { fileinfo } },
               { hl = mode_hl, strings = { location } },
-            })
+            }
           end,
         },
       }
@@ -492,8 +492,10 @@ local lazyTable = {
   { -- Highlight, edit, and navigate code
     -- Neovim 0.12+ requires the rewrite on `main`. `master` is locked to 0.11 and
     -- crashes on markdown fenced code blocks (`node:range` is nil).
+    -- `version = false` is required: tag v0.10.0 still points at archived master,
     'nvim-treesitter/nvim-treesitter',
     branch = 'main',
+    version = false,
     lazy = false,
     build = ':TSUpdate',
     config = function()
@@ -501,18 +503,55 @@ local lazyTable = {
       -- filetype is opened and no parser is loaded yet. `main` has no
       -- `ensure_installed` / `auto_install` keys.
       local has_treesitter_cli = vim.fn.executable 'tree-sitter' == 1
-      local available_parsers = require('nvim-treesitter').get_available()
+      local ts = require 'nvim-treesitter'
+      local available_parsers = ts.get_available()
       local injection_langs = {
         markdown = { 'markdown_inline' },
       }
+
+      -- TODO in the future remove the leftover handler
+      local leftover_parser_dir = vim.fn.stdpath 'data' .. '/lazy/nvim-treesitter/parser/'
+
+      ---@param language string
+      ---@return string|nil
+      local function preferred_parser_path(language)
+        local matches = vim.api.nvim_get_runtime_file('parser/' .. language .. '.*', true)
+        for _, path in ipairs(matches) do
+          -- `main` installs parsers under stdpath('data')/site. Leftover
+          -- master-branch .so files in the plugin dir shadow bundled parsers
+          -- and fail current queries (lua `operator` field, markdown range).
+          if vim.fn.stridx(path, leftover_parser_dir) ~= 0 then
+            return path
+          end
+        end
+        return nil
+      end
+
+      -- Register site/bundled parsers first so markdown injections (lua, etc.)
+      -- do not pick leftover plugin .so files via the default runtime search.
+      for _, path in ipairs(vim.api.nvim_get_runtime_file('parser/*.*', true)) do
+        if vim.fn.stridx(path, leftover_parser_dir) ~= 0 then
+          pcall(vim.treesitter.language.add, vim.fn.fnamemodify(path, ':t:r'), { path = path })
+        end
+      end
 
       ---@param buf integer
       ---@param language string
       ---@return boolean
       local function treesitter_try_attach(buf, language)
-        if not vim.treesitter.language.add(language) then
+        local parser_path = preferred_parser_path(language)
+        local added = false
+
+        if parser_path then
+          added = vim.treesitter.language.add(language, { path = parser_path })
+        else
+          added = vim.treesitter.language.add(language)
+        end
+
+        if not added then
           return false
         end
+
         vim.treesitter.start(buf, language)
         local has_indent_query = vim.treesitter.query.get(language, 'indents') ~= nil
         if has_indent_query then
@@ -527,7 +566,8 @@ local lazyTable = {
         if not has_treesitter_cli or not vim.tbl_contains(available_parsers, language) then
           return
         end
-        require('nvim-treesitter').install(language):await(on_done)
+        -- `install()` is async on `main`
+        ts.install(language):await(on_done)
       end
 
       vim.api.nvim_create_autocmd('FileType', {

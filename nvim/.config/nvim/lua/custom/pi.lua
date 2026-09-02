@@ -790,6 +790,13 @@ local function reload_modified_buffer(path)
   end
 end
 
+local function leave_visual_mode()
+  local mode = vim.fn.mode()
+  if mode == "v" or mode == "V" or mode == "\22" or mode == "s" or mode == "S" or mode == "\19" then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+  end
+end
+
 -- ─── Sidebar (chat + bottom input) ─────────────────────────────────────────────
 
 local submit_input -- forward declaration
@@ -891,6 +898,7 @@ end
 
 ensure_sidebar = function(opts)
   opts = opts or {}
+  leave_visual_mode()
   local prev_win = vim.api.nvim_get_current_win()
   ensure_output_buf()
   ensure_input_buf()
@@ -929,7 +937,15 @@ ensure_sidebar = function(opts)
 
   if opts.focus_input then
     vim.api.nvim_set_current_win(state.input_win)
-    vim.cmd("startinsert!")
+    -- Visual mappings stay in visual mode until they unwind; enter insert after that.
+    vim.schedule(function()
+      if not state.input_win or not vim.api.nvim_win_is_valid(state.input_win) then
+        return
+      end
+      vim.api.nvim_set_current_win(state.input_win)
+      leave_visual_mode()
+      vim.cmd("startinsert!")
+    end)
   elseif opts.focus_output then
     vim.api.nvim_set_current_win(state.output_win)
   elseif opts.focus_output == false then

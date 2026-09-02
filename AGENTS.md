@@ -36,7 +36,7 @@ Shared logic lives in `scripts/common.sh`. Entrypoints:
 - Update `README.md` when user-facing script behavior or workflows change.
 - Update this file when agent-relevant conventions or script roles change.
 - Do not run package installs via agent tooling beyond what’s already assumed (`stow`, `fzf` via Homebrew); if a new brew dependency is required, document it in the README prerequisites.
-- Neovim is 0.12. Keep `nvim-treesitter` on `branch = 'main'` (not `master`). Parser install needs `tree-sitter` CLI (`tree-sitter-cli`); without it, highlighting still uses bundled/already-installed parsers.
+- Neovim is 0.12. Keep `nvim-treesitter` on `branch = 'main'` with `version = false` (not `master`). Tag `v0.10.0` still points at archived `master` and crashes markdown highlighting (`node:range` is nil). Use `require('nvim-treesitter').get_available()` and `install(lang):await(...)` — not the old `parsers.available_parsers()` / `install()(lang)` factory. Leftover `parser/*.so` in the plugin checkout shadow bundled parsers; the FileType attach path skips that directory. Parser install needs `tree-sitter` CLI (`tree-sitter-cli`); without it, highlighting still uses bundled/already-installed parsers.
 
 ## Safety
 
