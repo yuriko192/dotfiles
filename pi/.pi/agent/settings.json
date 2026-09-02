@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.84.4",
   "theme": "noctalia",
   "defaultProvider": "cosmoshub",
-  "defaultModel": "minimax-m2.5",
-  "defaultThinkingLevel": "medium",
+  "defaultModel": "minimax-m3",
+  "defaultThinkingLevel": "high",
   "packages": []
 }
