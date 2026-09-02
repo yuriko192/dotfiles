@@ -1,6 +1,6 @@
 {
   "lastChangelogVersion": "0.84.4",
-  "theme": "dark",
+  "theme": "noctalia",
   "defaultProvider": "cosmoshub",
   "defaultModel": "minimax-m2.5",
   "defaultThinkingLevel": "medium",
