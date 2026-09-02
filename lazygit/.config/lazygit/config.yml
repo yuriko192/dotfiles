@@ -1,5 +1,4 @@
 gui:
-  skipDiscardChangeWarning: true
   theme:
     activeBorderColor:
       - "#33b1ff"
@@ -27,3 +26,4 @@ gui:
       - "#ee5396"
     defaultFgColor:
       - "#f2f4f8"
+  skipDiscardChangeWarning: true
