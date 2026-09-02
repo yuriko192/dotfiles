@@ -2,9 +2,10 @@
 ui_scale = 1.20
 
 [bar.default]
-center = [ "workspaces", "spacer_1", "active_window" ]
+start = [ "session", "launcher", "spacer_1", "active_window" ]
+center = [ "workspaces" ]
+end = [ "media", "spacer_1", "tray", "notifications",  "spacer_1", "volume", "spacer_1", "clock", "group:g1",]
 concave_edge_corners = true
-end = [ "media", "spacer_1", "tray", "notifications", "network", "volume", "session" ]
 margin_edge = 0
 margin_ends = 0
 radius_bottom_left = 12
@@ -12,7 +13,6 @@ radius_bottom_right = 12
 radius_top_left = 0
 radius_top_right = 0
 scale = 1.10
-start = [ "launcher", "clock", "spacer_1", "group:g1" ]
 thickness = 35
 
     [[bar.default.capsule_group]]
@@ -91,7 +91,7 @@ wallpaper_scheme = "m3-tonal-spot"
 
 [widget.clock]
 color = "secondary"
-format = "{:%H:%M %A %m/%d/%y}"
+format = "{:%Y/%m/%d %I:%M %p}"
 
 [widget.launcher]
 color = "secondary"
@@ -136,7 +136,8 @@ color = "secondary"
 [widget.workspaces]
 active_pill_size = 2.5
 capsule = true
-capsule_fill = "on_primary"
 inactive_pill_size = 1.0
-pill_scale = 0.80
-show_labels = false
+label_source = "name"
+max_label_chars = 20
+pill_scale=0.80
+style = "focus_hint"
