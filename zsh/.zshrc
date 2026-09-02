@@ -3,6 +3,8 @@ if [ $PROFILING_MODE -ne 0 ]; then
     zmodload zsh/zprof
 fi
 
+export USE_FASTFETCH=1
+
 # The following lines were added by compinstall
 
 zstyle ':completion:*' completer _expand _complete _ignored
@@ -182,8 +184,11 @@ chromeCors(){
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 #
 if [ $PROFILING_MODE -ne 0 ]; then
-    zprof
+  zprof
 fi
 
-fastfetch
+if [ $USE_FASTFETCH -ne 0 ]; then
+  fastfetch
+fi
+
 
