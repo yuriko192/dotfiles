@@ -31,7 +31,8 @@ dotfiles/
 ├── ghostty/.config/ghostty/config
 ├── starship/.config/starship.toml
 ├── lazygit/.config/lazygit/...
-└── pi/.pi/...
+├── pi/.pi/...
+└── cursor/.cursor/...
 ```
 
 ## Scripts
@@ -51,7 +52,7 @@ All interactive scripts expect `fzf`. Keys: `j`/`k` move, `/` search, `Tab` mult
 ```bash
 cd ~/dotfiles
 scripts/link              # pick package(s)
-scripts/link zsh nvim     # link specific packages
+scripts/link zsh nvim cursor  # link specific packages
 scripts/tui               # choose link, then packages
 ```
 
@@ -90,12 +91,13 @@ stow ghostty
 stow starship
 stow lazygit
 stow pi
+stow cursor
 ```
 
 Or all at once:
 
 ```bash
-stow zsh nvim tmux ghostty starship lazygit pi
+stow zsh nvim tmux ghostty starship lazygit pi cursor
 ```
 
 Dry-run first (no changes):
@@ -174,8 +176,8 @@ After pulling or editing package files:
 ```bash
 cd ~/dotfiles
 git pull
-scripts/link zsh nvim tmux ghostty starship lazygit pi
-# or: stow -R zsh nvim tmux ghostty starship lazygit pi
+scripts/link zsh nvim tmux ghostty starship lazygit pi cursor
+# or: stow -R zsh nvim tmux ghostty starship lazygit pi cursor
 ```
 
 `stow -R` (restow) removes old symlinks for the package, then stows again.
