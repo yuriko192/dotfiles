@@ -1,3 +1,9 @@
 */.DS_Store
 */.nvimlog
 pi/.pi/agent/sessions
+cursor/.cursor/chats
+cursor/.cursor/plugins/cache/*
+cursor/.cursor/projects
+cursor/.cursor/statsig-cache.json
+cursor/.cursor/cli-config.json
+cursor/.cursor/agent-cli-state.json
