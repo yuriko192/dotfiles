@@ -1,667 +1,718 @@
 {
   "providers": {
     "cosmoshub": {
-      "name": "CosmosHub",
-      "baseUrl": "https://api.cosmoshub.tech/v1",
       "api": "openai-completions",
       "apiKey": "$COSMOSHUB_API_KEY",
       "authHeader": true,
+      "baseUrl": "https://api.cosmoshub.tech/v1",
       "models": [
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 250,
+            "cacheWrite": 250,
+            "input": 250,
+            "output": 250
+          },
           "id": "claude-haiku-4.5",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
           "name": "Claude Haiku 4.5",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 250,
-            "output": 250,
-            "cacheRead": 250,
-            "cacheWrite": 250
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 300,
+            "cacheWrite": 300,
+            "input": 300,
+            "output": 300
+          },
           "id": "claude-sonnet-4.5",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
           "name": "Claude Sonnet 4.5",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 300,
-            "output": 300,
-            "cacheRead": 300,
-            "cacheWrite": 300
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 200,
+            "cacheWrite": 200,
+            "input": 200,
+            "output": 200
+          },
           "id": "deepseek-v3.2",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "DeepSeek v3.2",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 200,
-            "output": 200,
-            "cacheRead": 200,
-            "cacheWrite": 200
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "input": 0,
+            "output": 0
+          },
           "id": "deepseek-v3.2-free",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "DeepSeek v3.2 Free",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "deepseek-v4-flash",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "DeepSeek v4 Flash",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "deepseek-v4-flash-0731",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "DeepSeek v4 Flash 0731",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 450,
+            "cacheWrite": 450,
+            "input": 450,
+            "output": 450
+          },
           "id": "deepseek-v4-pro",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 32768,
           "name": "DeepSeek v4 Pro",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 450,
-            "output": 450,
-            "cacheRead": 450,
-            "cacheWrite": 450
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 450,
+            "cacheWrite": 450,
+            "input": 450,
+            "output": 450
+          },
           "id": "deepseek-v4-pro-0813",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 32768,
           "name": "DeepSeek v4 Pro 0813",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 450,
-            "output": 450,
-            "cacheRead": 450,
-            "cacheWrite": 450
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 250,
+            "cacheWrite": 250,
+            "input": 250,
+            "output": 250
+          },
           "id": "gemini-3.1-pro",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
           "name": "Gemini 3.1 Pro",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 250,
-            "output": 250,
-            "cacheRead": 250,
-            "cacheWrite": 250
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 250,
+            "cacheWrite": 250,
+            "input": 250,
+            "output": 250
+          },
           "id": "gemini-3.5-flash",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
           "name": "Gemini 3.5 Flash",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 250,
-            "output": 250,
-            "cacheRead": 250,
-            "cacheWrite": 250
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 300,
+            "cacheWrite": 300,
+            "input": 300,
+            "output": 300
+          },
           "id": "gemini-3.6-flash",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
           "name": "Gemini 3.6 Flash",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 300,
-            "output": 300,
-            "cacheRead": 300,
-            "cacheWrite": 300
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 350,
+            "cacheWrite": 350,
+            "input": 350,
+            "output": 350
+          },
           "id": "gemini-3.7-flash",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
           "name": "Gemini 3.7 Flash",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 350,
-            "output": 350,
-            "cacheRead": 350,
-            "cacheWrite": 350
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "gemini-3.8-flash",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
           "name": "Gemini 3.8 Flash",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "glm-5.0-turbo",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "GLM 5.0 Turbo",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 450,
+            "cacheWrite": 450,
+            "input": 450,
+            "output": 450
+          },
           "id": "glm-5.1",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 32768,
           "name": "GLM 5.1",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 450,
-            "output": 450,
-            "cacheRead": 450,
-            "cacheWrite": 450
-          }
+          "reasoning": true
         },
         {
-          "id": "glm-5.2",
-          "name": "GLM 5.2",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
           "contextWindow": 65536,
-          "maxTokens": 16384,
           "cost": {
-            "input": 500,
-            "output": 500,
             "cacheRead": 500,
-            "cacheWrite": 500
-          }
+            "cacheWrite": 500,
+            "input": 500,
+            "output": 500
+          },
+          "id": "glm-5.2",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
+          "name": "GLM 5.2",
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 550,
+            "cacheWrite": 550,
+            "input": 550,
+            "output": 550
+          },
           "id": "glm-5.3",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 32768,
           "name": "GLM 5.3",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 550,
-            "output": 550,
-            "cacheRead": 550,
-            "cacheWrite": 550
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "glm-5.3-flash",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "GLM 5.3 Flash",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "glm-5v-turbo",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 16384,
           "name": "GLM 5V Turbo",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "reasoning": true
         },
         {
-          "id": "hy3",
-          "name": "Hy3",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
           "contextWindow": 65536,
-          "maxTokens": 16384,
           "cost": {
-            "input": 150,
-            "output": 150,
             "cacheRead": 150,
-            "cacheWrite": 150
-          }
+            "cacheWrite": 150,
+            "input": 150,
+            "output": 150
+          },
+          "id": "hy3",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
+          "name": "Hy3",
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "input": 0,
+            "output": 0
+          },
           "id": "hy3-free",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Hy3 Free",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 200,
+            "cacheWrite": 200,
+            "input": 200,
+            "output": 200
+          },
           "id": "hy4-preview",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Hy4 Preview",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 200,
-            "output": 200,
-            "cacheRead": 200,
-            "cacheWrite": 200
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "input": 0,
+            "output": 0
+          },
           "id": "hy4-preview-free",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Hy4 Preview Free",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 350,
+            "cacheWrite": 350,
+            "input": 350,
+            "output": 350
+          },
           "id": "kimi-k2.5",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 16384,
           "name": "Kimi K2.5",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 350,
-            "output": 350,
-            "cacheRead": 350,
-            "cacheWrite": 350
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "kimi-k2.6",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 16384,
           "name": "Kimi K2.6",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "reasoning": true
         },
         {
-          "id": "kimi-k2.7-code",
-          "name": "Kimi K2.7 Code",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
           "contextWindow": 65536,
-          "maxTokens": 16384,
           "cost": {
-            "input": 450,
-            "output": 450,
             "cacheRead": 450,
-            "cacheWrite": 450
-          }
+            "cacheWrite": 450,
+            "input": 450,
+            "output": 450
+          },
+          "id": "kimi-k2.7-code",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 16384,
+          "name": "Kimi K2.7 Code",
+          "reasoning": true
         },
         {
-          "id": "kimi-k3",
-          "name": "Kimi K3",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
           "contextWindow": 131072,
-          "maxTokens": 32768,
           "cost": {
-            "input": 550,
-            "output": 550,
             "cacheRead": 550,
-            "cacheWrite": 550
-          }
+            "cacheWrite": 550,
+            "input": 550,
+            "output": 550
+          },
+          "id": "kimi-k3",
+          "input": [
+            "text",
+            "image"
+          ],
+          "maxTokens": 32768,
+          "name": "Kimi K3",
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 300,
+            "cacheWrite": 300,
+            "input": 300,
+            "output": 300
+          },
           "id": "minimax-m2.7",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "MiniMax M2.7",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 300,
-            "output": 300,
-            "cacheRead": 300,
-            "cacheWrite": 300
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 350,
+            "cacheWrite": 350,
+            "input": 350,
+            "output": 350
+          },
           "id": "minimax-m3",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 32768,
           "name": "MiniMax M3",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 350,
-            "output": 350,
-            "cacheRead": 350,
-            "cacheWrite": 350
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "input": 0,
+            "output": 0
+          },
           "id": "nemotron-3-super-free",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 32768,
           "name": "Nemotron 3 Super Free",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "input": 0,
+            "output": 0
+          },
           "id": "nemotron-3-ultra-free",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 32768,
           "name": "Nemotron 3 Ultra Free",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 131072,
-          "maxTokens": 32768,
-          "cost": {
-            "input": 0,
-            "output": 0,
-            "cacheRead": 0,
-            "cacheWrite": 0
-          }
+          "reasoning": true
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 200,
+            "cacheWrite": 200,
+            "input": 200,
+            "output": 200
+          },
           "id": "qwen-3.5-flash",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Qwen 3.5 Flash",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 200,
-            "output": 200,
-            "cacheRead": 200,
-            "cacheWrite": 200
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 200,
+            "cacheWrite": 200,
+            "input": 200,
+            "output": 200
+          },
           "id": "qwen-3.5-plus",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Qwen 3.5 Plus",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 200,
-            "output": 200,
-            "cacheRead": 200,
-            "cacheWrite": 200
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 200,
+            "cacheWrite": 200,
+            "input": 200,
+            "output": 200
+          },
           "id": "qwen-3.6-flash",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Qwen 3.6 Flash",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 200,
-            "output": 200,
-            "cacheRead": 200,
-            "cacheWrite": 200
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 200,
+            "cacheWrite": 200,
+            "input": 200,
+            "output": 200
+          },
           "id": "qwen-3.6-plus",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Qwen 3.6 Plus",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 200,
-            "output": 200,
-            "cacheRead": 200,
-            "cacheWrite": 200
-          }
+          "reasoning": false
         },
         {
+          "contextWindow": 65536,
+          "cost": {
+            "cacheRead": 200,
+            "cacheWrite": 200,
+            "input": 200,
+            "output": 200
+          },
           "id": "qwen-3.7-flash",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
           "name": "Qwen 3.7 Flash",
-          "reasoning": false,
-          "input": [
-            "text"
-          ],
-          "contextWindow": 65536,
-          "maxTokens": 16384,
-          "cost": {
-            "input": 200,
-            "output": 200,
-            "cacheRead": 200,
-            "cacheWrite": 200
-          }
+          "reasoning": false
         },
         {
-          "id": "qwen-3.7-max",
-          "name": "Qwen 3.7 Max",
-          "reasoning": true,
-          "input": [
-            "text"
-          ],
           "contextWindow": 131072,
-          "maxTokens": 32768,
           "cost": {
-            "input": 300,
-            "output": 300,
             "cacheRead": 300,
-            "cacheWrite": 300
-          }
-        },
-        {
-          "id": "qwen-3.7-plus",
-          "name": "Qwen 3.7 Plus",
-          "reasoning": false,
+            "cacheWrite": 300,
+            "input": 300,
+            "output": 300
+          },
+          "id": "qwen-3.7-max",
           "input": [
             "text"
           ],
+          "maxTokens": 32768,
+          "name": "Qwen 3.7 Max",
+          "reasoning": true
+        },
+        {
           "contextWindow": 65536,
-          "maxTokens": 16384,
           "cost": {
-            "input": 250,
-            "output": 250,
             "cacheRead": 250,
-            "cacheWrite": 250
-          }
-        },
-        {
-          "id": "qwen-3.8-flash",
-          "name": "Qwen 3.8 Flash",
-          "reasoning": false,
+            "cacheWrite": 250,
+            "input": 250,
+            "output": 250
+          },
+          "id": "qwen-3.7-plus",
           "input": [
             "text"
           ],
-          "contextWindow": 65536,
           "maxTokens": 16384,
+          "name": "Qwen 3.7 Plus",
+          "reasoning": false
+        },
+        {
+          "contextWindow": 65536,
           "cost": {
-            "input": 350,
-            "output": 350,
             "cacheRead": 350,
-            "cacheWrite": 350
-          }
+            "cacheWrite": 350,
+            "input": 350,
+            "output": 350
+          },
+          "id": "qwen-3.8-flash",
+          "input": [
+            "text"
+          ],
+          "maxTokens": 16384,
+          "name": "Qwen 3.8 Flash",
+          "reasoning": false
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "qwen-3.8-max",
-          "name": "Qwen 3.8 Max",
-          "reasoning": true,
           "input": [
             "text"
           ],
-          "contextWindow": 131072,
           "maxTokens": 32768,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "name": "Qwen 3.8 Max",
+          "reasoning": true
         },
         {
+          "contextWindow": 131072,
+          "cost": {
+            "cacheRead": 400,
+            "cacheWrite": 400,
+            "input": 400,
+            "output": 400
+          },
           "id": "qwen-3.8-max-0902",
-          "name": "Qwen 3.8 Max 0902",
-          "reasoning": true,
           "input": [
             "text"
           ],
-          "contextWindow": 131072,
           "maxTokens": 32768,
-          "cost": {
-            "input": 400,
-            "output": 400,
-            "cacheRead": 400,
-            "cacheWrite": 400
-          }
+          "name": "Qwen 3.8 Max 0902",
+          "reasoning": true
+        }
+      ],
+      "name": "CosmosHub"
+    },
+    "ollama": {
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "baseUrl": "http://127.0.0.1:11434/v1",
+      "models": [
+        {
+          "_launch": true,
+          "contextWindow": 262144,
+          "id": "hf.co/ornith-ai/Ornith-1.5-9B-GGUF:Q4_K_M",
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "contextWindow": 262144,
+          "id": "ornith-1.5:9b",
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "contextWindow": 262144,
+          "id": "hf.co/unsloth/gemma-4-12B-it-qat-GGUF:UD-Q4_K_XL",
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "contextWindow": 262144,
+          "id": "hf.co/yuxinlu1/gemma-4-12B-agentic-fable5-composer2.5-v2-3.5x-tau2-GGUF:Q4_K_M",
+          "input": [
+            "text"
+          ]
         }
       ]
     }

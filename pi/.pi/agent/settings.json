@@ -1,8 +1,10 @@
 {
-  "lastChangelogVersion": "0.85.0",
-  "theme": "noctalia",
-  "defaultProvider": "cosmoshub",
-  "defaultModel": "kimi-k2.7-code",
+  "defaultModel": "hf.co/ornith-ai/Ornith-1.5-9B-GGUF:Q4_K_M",
+  "defaultProvider": "ollama",
   "defaultThinkingLevel": "high",
-  "packages": []
+  "lastChangelogVersion": "0.85.1",
+  "packages": [
+    "npm:@ollama/pi-web-search"
+  ],
+  "theme": "noctalia"
 }
