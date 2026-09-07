@@ -28,6 +28,7 @@ Shared logic lives in `scripts/common.sh`. Entrypoints:
 - Only add config you intend to symlink; skip secrets, caches, logs, and bulky app data.
 - Never commit real credentials (`auth.json`, tokens, private keys). Prefer stubs or leave those paths unstowed.
 - When adding a config, place it at the `$HOME`-relative path inside the package, then link with `scripts/link` (or document raw `stow` if appropriate).
+- Pi global skills live in `pi/.pi/agent/skills/<name>/SKILL.md` (stows to `~/.pi/agent/skills/`). Follow the Agent Skills standard (`name` + `description` frontmatter). Validate with `pi --skill ./path/to/skill-dir`.
 
 ## Editing guidance
 

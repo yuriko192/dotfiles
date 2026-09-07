@@ -61,6 +61,9 @@ package (`pi/`, `cursor/`, etc.) at the `$HOME`-relative path.
 
 ## 1. Create a pi extension
 
+For a full authoring workflow, load the dedicated `create-extension` skill
+(`pi/.pi/agent/skills/create-extension/`).
+
 Extensions are TypeScript modules loaded by pi.
 
 Locations:
@@ -96,7 +99,13 @@ Guidelines:
 
 ## 2. Create a pi skill
 
+For a full authoring workflow, load the dedicated `create-skill` skill
+(`pi/.pi/agent/skills/create-skill/`). Related skills: `create-extension`,
+`create-rule`, `create-prompt`, `create-subagent`, `update-settings`.
+
 Skills follow the [Agent Skills](https://agentskills.io/specification) standard.
+
+In this repo, global skills live at `pi/.pi/agent/skills/<skill-name>/SKILL.md`.
 
 Structure:
 
@@ -128,6 +137,9 @@ Guidelines:
 - Validate with `pi --skill ./path/to/skill-dir`.
 
 ## 3. Create a pi prompt template
+
+For a full authoring workflow, load the dedicated `create-prompt` skill
+(`pi/.pi/agent/skills/create-prompt/`).
 
 Prompt templates are Markdown snippets invoked by typing `/<name>` in pi.
 
@@ -169,6 +181,9 @@ Read `docs/themes.md` for the theme schema and available tokens. Validate the
 JSON and reload pi to see changes.
 
 ## 5. Create pi context rules
+
+For a full authoring workflow, load the dedicated `create-rule` skill
+(`pi/.pi/agent/skills/create-rule/`).
 
 Pi reads project context from these files (searching from cwd up to git root or
 filesystem root):
