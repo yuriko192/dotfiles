@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "goland": {
+      "url": "http://127.0.0.1:64342/sse",
+      "importedFrom": "cursor"
+    },
+    "datagrip": {
+      "url": "http://127.0.0.1:64402/stream",
+      "type": "http",
+      "importedFrom": "claude"
+    },
+    "claude_goland": {
+      "url": "http://127.0.0.1:64422/stream",
+      "type": "http",
+      "importedFrom": "claude"
+    }
+  },
+  "imported": {
+    "updatedAt": "2026-09-08T07:55:58.141Z",
+    "sources": [
+      {
+        "host": "cursor",
+        "path": "/Users/ivan.wijaya/.cursor/mcp.json"
+      },
+      {
+        "host": "claude",
+        "path": "/Users/ivan.wijaya/.claude.json"
+      }
+    ]
+  }
+}

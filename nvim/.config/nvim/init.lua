@@ -527,6 +527,17 @@ local lazyTable = {
         return nil
       end
 
+      -- Remove leftover plugin parsers that have a bundled/site copy so they
+      -- cannot win the default runtime search (injections, language.add).
+      for _, path in ipairs(vim.api.nvim_get_runtime_file('parser/*.*', true)) do
+        if vim.fn.stridx(path, leftover_parser_dir) == 0 then
+          local language = vim.fn.fnamemodify(path, ':t:r')
+          if preferred_parser_path(language) then
+            vim.fn.delete(path)
+          end
+        end
+      end
+
       -- Register site/bundled parsers first so markdown injections (lua, etc.)
       -- do not pick leftover plugin .so files via the default runtime search.
       for _, path in ipairs(vim.api.nvim_get_runtime_file('parser/*.*', true)) do

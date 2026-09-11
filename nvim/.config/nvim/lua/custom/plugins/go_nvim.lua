@@ -5,6 +5,8 @@ end
 return {
   {
     'ray-x/go.nvim',
+    -- Neovim 0.12: master is the supported line. v0.11 is only for 0.11 / treesitter master.
+    branch = 'master',
     dependencies = { -- optional packages
       'ray-x/guihua.lua',
       'neovim/nvim-lspconfig',
