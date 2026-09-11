@@ -1,6 +1,6 @@
 {
-  "defaultModel": "hf.co/ornith-ai/Ornith-1.5-9B-GGUF:Q4_K_M",
-  "defaultProvider": "ollama",
+  "defaultModel": "cu/default",
+  "defaultProvider": "9router",
   "defaultThinkingLevel": "high",
   "lastChangelogVersion": "0.85.1",
   "packages": [

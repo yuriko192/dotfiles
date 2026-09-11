@@ -96,6 +96,8 @@ Guidelines:
   `session_start`.
 - Quick test: `pi -e ./path-to-extension.ts`.
 - Hot reload: place in an auto-discovered location and run `/reload`.
+- MCP already exists at `pi/.pi/agent/extensions/mcp/`. It connects pi to external MCP servers and imports Cursor/Claude MCP files into `~/.pi/agent/mcp.json`. Do not add another MCP client or commit that file.
+- 9router already exists at `pi/.pi/agent/extensions/9router/`. It registers provider `9router` from `GET /v1/models`. Do not add another 9router provider, a static `models.json` `9router` block, or commit `~/.pi/agent/9router-config.json`. `cu/*` is a Cursor IDE route and rejects Pi tools unless the Chat Completions bridge in `cursor-compat.ts` is kept.
 
 ## 2. Create a pi skill
 

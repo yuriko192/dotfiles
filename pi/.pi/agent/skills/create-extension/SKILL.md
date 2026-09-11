@@ -21,7 +21,7 @@ When the user asks for a hook, gate, or "run this before/after a tool", write an
 | Project file | `.pi/extensions/<name>.ts` |
 | Project dir | `.pi/extensions/<name>/index.ts` |
 
-In this dotfiles repo, global extensions belong under `pi/.pi/agent/extensions/`.
+In this dotfiles repo, global extensions belong under `pi/.pi/agent/extensions/`. New files must appear under `~/.pi/agent/extensions/` or Pi will not load them. If `scripts/link pi` aborts on `settings.json` / `models.json` conflicts, symlink only the new extension path.
 
 Auto-discovered extensions hot-reload with `/reload`. Quick test: `pi -e ./path-to-extension.ts`.
 
@@ -111,7 +111,11 @@ pi.registerCommand("hello", {
 });
 ```
 
-Existing extensions in this package (`ask-user.ts`, `add-context.ts`, `modified-files.ts`) are the local style reference. Match their focus and TypeScript style.
+Existing extensions in this package (`ask-user.ts`, `add-context.ts`, `modified-files.ts`, `mcp/`, `9router/`) are the local style reference. Match their focus and TypeScript style.
+
+MCP already lives in `extensions/mcp/`. It is a client for external MCP servers. Do not create another MCP client. Host configs (Cursor, Claude, …) are imported into `~/.pi/agent/mcp.json` — do not commit that file.
+
+9router already lives in `extensions/9router/`. It registers provider `9router` from a live OpenAI-compatible catalog (`GET /v1/models`). Do not add a second 9router provider or a static `9router` block in `models.json`. Do not commit `~/.pi/agent/9router-config.json`. Cursor `cu/*` routes cannot run Pi tools through 9router AgentService; keep the Chat Completions bridge in `cursor-compat.ts` and prefer `cc/` / `cosmoshub/` for agent sessions.
 
 ## Workflow
 
