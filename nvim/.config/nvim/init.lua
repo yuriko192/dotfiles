@@ -49,7 +49,10 @@ vim.o.showmode = false
 vim.o.breakindent = true
 
 -- Save undo history
+local undodir = vim.fn.stdpath 'data' .. '/undo'
 vim.o.undofile = true
+vim.fn.mkdir(undodir, 'p')
+vim.o.undodir = undodir
 
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.o.ignorecase = true
@@ -511,6 +514,11 @@ local lazyTable = {
 
       -- TODO in the future remove the leftover handler
       local leftover_parser_dir = vim.fn.stdpath 'data' .. '/lazy/nvim-treesitter/parser/'
+      -- `main` keeps queries under runtime/ until :TSInstall copies them to
+      -- site. Leftover master parsers still load from parser/; starting a
+      -- highlighter with no queries clears regex syntax so json looks like
+      -- plain text.
+      vim.opt.rtp:append(vim.fn.stdpath 'data' .. '/lazy/nvim-treesitter/runtime')
 
       ---@param language string
       ---@return string|nil
@@ -563,7 +571,13 @@ local lazyTable = {
           return false
         end
 
-        vim.treesitter.start(buf, language)
+        if vim.treesitter.query.get(language, 'highlights') == nil then
+          return false
+        end
+
+        if not pcall(vim.treesitter.start, buf, language) then
+          return false
+        end
         local has_indent_query = vim.treesitter.query.get(language, 'indents') ~= nil
         if has_indent_query then
           vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
