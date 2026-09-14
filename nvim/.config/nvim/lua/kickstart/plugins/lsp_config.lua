@@ -14,6 +14,9 @@ return {
 
     -- Allows extra capabilities provided by blink.cmp
     'saghen/blink.cmp',
+
+    -- JSON schema catalog for jsonls validity checks (package.json, tsconfig, …)
+    { 'b0o/SchemaStore.nvim', lazy = true, version = false },
   },
   config = function()
     -- Brief aside: **What is LSP?**
@@ -270,6 +273,17 @@ return {
       --
       -- But for many setups, the LSP (`ts_ls`) will work just fine
       ts_ls = {},
+      jsonls = {
+        -- jq owns .json formatting via conform; jsonls reports syntax/schema errors
+        init_options = {
+          provideFormatter = false,
+        },
+        settings = {
+          json = {
+            validate = { enable = true },
+          },
+        },
+      },
       --
 
       lua_ls = {
@@ -301,6 +315,11 @@ return {
     --
     -- You can add other tools here that you want Mason to install
     -- for you, so that they are available from within Neovim.
+    local ok_store, schemastore = pcall(require, 'schemastore')
+    if ok_store then
+      servers.jsonls.settings.json.schemas = schemastore.json.schemas()
+    end
+
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
       'stylua', -- Used to format Lua code
